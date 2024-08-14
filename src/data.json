@@ -1,0 +1,8 @@
+{
+  "number": 123,
+  "number2": -0.129,
+  "text": "Abc with Üñıçôðé and ユニコード",
+  "flag": true,
+  "list": [ 1, 2, 3 ],
+  "obj": { "a": 1, "b": "2", "c": false, "d": { "a": 0, "b": -1 } }
+}

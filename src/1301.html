@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<head>
+  <title>canvas:css</title>
+  <style>
+    body {
+      background-color: crimson;
+      font-size: 2rem;
+    }
+    canvas {
+      border: 4px solid #09f;
+    }
+  </style>
+</head>
+<body>
+  <button onclick="main()">main</button>
+
+<script>
+
+// https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer
+// https://teropa.info/blog/2016/08/04/sine-waves
+// https://teropa.info/blog/2016/09/20/additive-synthesis
+
+function main(){
+  console.log("main")
+
+  const TAU = 2 * Math.PI
+  const DURATION = 12 //secs
+  const SAMPLE_RATE = 44100
+  
+  let audioContext = new AudioContext();
+  let audioBuffer = audioContext.createBuffer(1, DURATION * SAMPLE_RATE, SAMPLE_RATE);
+  
+  let buf = audioBuffer.getChannelData(0);
+  for (let i = 0 ; i < SAMPLE_RATE*2 ; i++) {
+    // buf[i] = generateSinewave(i, 440);
+    
+    // const harmonics = [
+    //   generateSinewave(i, 440*1, 1),
+    //   generateSinewave(i, 440*2, 0.5),
+    //   generateSinewave(i, 440*3, 0.2),
+    //   generateSinewave(i, 440*4, 0.1)
+    // ]
+
+    // beating
+    const harmonics = [
+      generateSinewave(i, 330, 0.5),
+      generateSinewave(i, 330.33, 0.5),
+      generateSinewave(i, 440, 0.5),
+      generateSinewave(i, 440.33, 0.5),
+    ]
+
+    buf[i] = harmonics.reduce((acc, cur) => acc + cur,0) * harmonics.length/10;
+
+    //
+    let sampleTime = i / SAMPLE_RATE;
+    // console.log(i, sampleTime)
+
+  }
+
+  function generateSinewave(sampleNumber, frequency=440, gain=1 ) {
+    const angular_frequency = frequency * TAU;
+    let sampleTime = sampleNumber / SAMPLE_RATE;
+    let sampleAngle = sampleTime * angular_frequency;
+    return Math.sin(sampleAngle) * gain;
+  }
+
+  let src = audioContext.createBufferSource();
+  src.buffer = audioBuffer;  
+  src.connect(audioContext.destination);
+  src.start();
+}
+</script>
+</body>
+</html>

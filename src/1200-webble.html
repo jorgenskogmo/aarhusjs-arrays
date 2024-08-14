@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head> </head>
+  <body style="display: grid; gap: 10px">
+    <ds-aajs-head></ds-aajs-head>
+
+    <button onclick="connect()">Connect</button>
+
+    <button onclick="volume(0)">Mute</button>
+    <button onclick="volume(25)">Vol 25</button>
+    <button onclick="volume(75)">Vol 75</button>
+    <button onclick="volume(100)">Vol 100</button>
+    <button onclick="disconnect()">Disconnect</button>
+    <button onclick="shutdown()">Shutdown</button>
+
+    <div class="chip" style="height: 400px; background-color: #ccc"></div>
+
+    <script>
+      // https://github.com/Jackomatrus/pyLegoMario/blob/main/pyLegoMario/lego_mario_data.py#L137
+
+      const chip = document.querySelector(".chip");
+
+      function OnGattServerDisconnected() {
+        console.log("OnGattServerDisconnected");
+      }
+
+      async function volume(v) {
+        const volume = Math.max(Math.min(v, 100), 0);
+        await this.characteristic.writeValue(
+          new Uint8Array([
+            6, // message length
+            0, // always 0
+            1, // message type (1 = Hub Properties)
+            18, // port id (18 = 0x12 = volume)
+            1, // port operation (1 = set value)
+            volume, // new value
+          ])
+        );
+        console.log("setting volume to ", volume);
+      }
+
+      async function disconnect() {
+        await this.characteristic.writeValue(
+          new Uint8Array([
+            4, // message length
+            0, // always 0
+            2, // message type (2 = Hub Actions)
+            2, // action (2 = disconnect)
+          ])
+        );
+        console.log("disconnect");
+      }
+
+      async function shutdown() {
+        await this.characteristic.writeValue(
+          new Uint8Array([
+            4, // message length
+            0, // always 0
+            2, // message type (2 = Hub Actions)
+            1, // action (1 = turn off)
+          ])
+        );
+        console.log("shutdown");
+      }
+
+      function OnCharacteristicValueChanged(event) {
+        const message = Array.from(new Uint8Array(event.target.value.buffer));
+        const messageHeader = message.slice(0, 3);
+        const messageBody = message.slice(3);
+        const messageType = messageHeader[2];
+        if (messageType != 69) return;
+
+        const port = messageBody[0];
+
+        if (port === 0) {
+          // const motion = messageBody.slice(1);
+          // console.log("motion:", motion);
+        } else if (port === 1) {
+          const values = messageBody.slice(1); // [120, 124, 130]
+          chip.style.backgroundColor = `rgb(${values.join(",")})`;
+          console.log("rgb:", rgb);
+        } else if (port === 3) {
+          const eventType = messageBody[1];
+          const eventKey = messageBody[2];
+          const eventValue = messageBody[3] + messageBody[4] * 256;
+          // console.log("coins:", eventType, eventKey, eventValue);
+          // this.parseEvent(eventType, eventKey, eventValue);
+        }
+      }
+
+      async function connect() {
+        console.log("connect");
+        try {
+          this.device = await navigator.bluetooth.requestDevice({
+            filters: [
+              {
+                namePrefix: "LEGO Mario",
+              },
+            ],
+            // acceptAllDevices: true,
+            optionalServices: ["00001623-1212-efde-1623-785feabcd123"],
+          });
+        } catch (err) {
+          return;
+        }
+
+        this.device.addEventListener(
+          "gattserverdisconnected",
+          OnGattServerDisconnected
+        );
+
+        this.server = await this.device.gatt.connect();
+
+        this.service = await this.server.getPrimaryService(
+          "00001623-1212-efde-1623-785feabcd123"
+        );
+
+        this.characteristic = await this.service.getCharacteristic(
+          "00001624-1212-efde-1623-785feabcd123"
+        );
+
+        this.characteristic.addEventListener(
+          "characteristicvaluechanged",
+          // this.handleValueEvent
+          OnCharacteristicValueChanged
+        );
+
+        this.characteristic.startNotifications();
+
+        // subscribe to events
+        await this.characteristic.writeValue(
+          new Uint8Array([
+            10, // length of message (10)
+            0, // hub id (Always 0)
+            65, // Message type (Port Input Format Setup (Single))
+            3, // port id
+            2, // port mode
+            1, // interval
+            0, //
+            0, //
+            0, //
+            1, //
+          ])
+        );
+
+        // subscribe to color
+        await this.characteristic.writeValue(
+          new Uint8Array([10, 0, 65, 1, 1, 5, 0, 0, 0, 1])
+        );
+
+        // subscribe to pants
+        await this.characteristic.writeValue(
+          new Uint8Array([10, 0, 65, 2, 0, 5, 0, 0, 0, 1])
+        );
+
+        // subscribe to accelerometer
+        await this.characteristic.writeValue(
+          new Uint8Array([10, 0, 65, 0, 0, 5, 0, 0, 0, 1])
+        );
+      }
+    </script>
+
+    <script type="module" src="./lib/ds-head.js"></script>
+  </body>
+</html>
