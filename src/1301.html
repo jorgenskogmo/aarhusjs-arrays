@@ -14,18 +14,42 @@
 <body>
   <button onclick="main()">main</button>
 
-<script>
+  <script>
+    function plot(buffer){
 
-// https://musiclab.chromeexperiments.com/Experiments
-// https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer
-// https://teropa.info/blog/2016/08/04/sine-waves
-// https://teropa.info/blog/2016/09/20/additive-synthesis
+      const data = buffer.getChannelData( 0 );
+      const len = data.length
+      
+      const available_width = 800;
+      const hs = 0.5 //Math.max(0.1, available_width / len);
+      console.log(hs)
+      const el = document.createElement("canvas");
+      el.setAttribute("width", `${available_width}px`)
+      el.setAttribute("height", "400px")
+      document.body.appendChild(el)
+      const ctx = el.getContext("2d")
+      // ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      let x = 0;
+      let y = 200;
+      ctx.moveTo(x,y)
+      for(let i=0; i<data.length; i++){
+        const v = data[i] * 150 
+        ctx.lineTo(x, y-v)
+        x += hs
+      }
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+  </script>
+<script>
 
 function main(){
   console.log("main")
 
   const TAU = 2 * Math.PI
-  const DURATION = 12 //secs
+  const DURATION = 1 //secs
   const SAMPLE_RATE = 44100
   
   let audioContext = new AudioContext();
@@ -35,20 +59,22 @@ function main(){
   for (let i = 0 ; i < SAMPLE_RATE*2 ; i++) {
     // buf[i] = generateSinewave(i, 440);
     
-    // const harmonics = [
-    //   generateSinewave(i, 440*1, 1),
-    //   generateSinewave(i, 440*2, 0.5),
-    //   generateSinewave(i, 440*3, 0.2),
-    //   generateSinewave(i, 440*4, 0.1)
-    // ]
+    const harmonics = [
+      generateSinewave(i, 330, 1),
+      generateSinewave(i, 440*1, 1),
+      // generateSinewave(i, 440*3, 1),
+      // generateSinewave(i, 440*2, 0.5),
+      // generateSinewave(i, 440*3, 0.2),
+      // generateSinewave(i, 440*4, 0.1)
+    ]
 
     // beating
-    const harmonics = [
-      generateSinewave(i, 330, 0.5),
-      generateSinewave(i, 330.33, 0.5),
-      generateSinewave(i, 440, 0.5),
-      generateSinewave(i, 440.33, 0.5),
-    ]
+    // const harmonics = [
+    //   generateSinewave(i, 330, 0.5),
+    //   generateSinewave(i, 330.33, 0.5),
+    //   generateSinewave(i, 440, 0.5),
+    //   generateSinewave(i, 440.33, 0.5),
+    // ]
 
     buf[i] = harmonics.reduce((acc, cur) => acc + cur,0) * harmonics.length/10;
 
@@ -69,7 +95,18 @@ function main(){
   src.buffer = audioBuffer;  
   src.connect(audioContext.destination);
   src.start();
+
+  //
+  plot(audioBuffer)
 }
 </script>
+
+<pre>
+// https://musiclab.chromeexperiments.com/Experiments
+// https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer
+// https://teropa.info/blog/2016/08/04/sine-waves
+// https://teropa.info/blog/2016/09/20/additive-synthesis
+</pre>
+
 </body>
 </html>
