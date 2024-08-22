@@ -1,0 +1,38 @@
+<div class="sb-links">
+  <a href="/01-welcome.html">01. Welcome</a>
+  <a href="/02-methods.html">02. Methods</a>
+
+  <div class="sb-section">Examples</div>
+  <a href="/50-canvas.html">50. Canvas</a>
+  <a href="/60-webble-mario.html">60. web-bluetooth, mario</a>
+  <a href="/61-webble-gecko.html">60. web-bluetooth, gecko</a>
+  <a href="/70-sound.html">70. sound</a>
+
+  <div class="sb-section">CS</div>
+  <a href="/05-bits.html">05. bits</a>
+
+  <div class="sb-section">Chromium & Node</div>
+  <a href="/06-turbofan.html">06. turbofan</a>
+
+  <div class="sb-section">Data</div>
+  <a href="/07-data.html">07. data</a>
+  <a href="/07-data-alt.html">08. json/csv/msgpack</a>
+
+  <div class="sb-section">Performance strategies</div>
+  <a href="/08-strategies.html">09. strategies</a>
+</div>
+
+<script>
+  const pathname = document.location.pathname;
+  // console.log(pathname);
+
+  const links = document.querySelectorAll(".sb-links a");
+  links.forEach((link) => {
+    link.classList = "";
+    const href = link.getAttribute("href");
+    // console.log(pathname, href);
+    if (href == pathname) {
+      link.classList = "selected";
+    }
+  });
+</script>

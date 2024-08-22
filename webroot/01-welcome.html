@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>welcome</title>
+  </head>
+  <body>
+    <section id="sb">
+      <!--#include file="/chapters.html" -->
+    </section>
+    <section id="main">
+      <div class="dshead">
+        <!--#include file="/ds-aajs-head.html" -->
+        <span style="font-style: italic;">welcome<br />
+      </div>
+<div class="prose"><pre>
+So, 
+
+Arrays!
+
+We will look at this fundamental data structure to understand how to
+- use it
+- what makes it fast
+- how low-level arrays work (C, C++, Obj-C, Rust, Swift)
+- how js arrays work (with a peek at TurboFan)
+- work with binary data (web-ble example)
+- work with batch updates (canvas2d example)
+- work with buffers (sound example)
+
+and finally, what arrays of data brings in regards to performance optimisation,
+which makes users happy
+(sorry Søren, the “Great Ux starts with great data” was just an evil pun on your title, hope you’re ok with that ... )
+
+</pre></div>     
+    </section>
+
+    <script>
+      document.querySelectorAll(".prose > pre").forEach( el => {
+        el.parentNode.innerHTML = el.innerText.split("\n").join("<br />\n")
+      })
+    </script>
+  </body>
+</html>
