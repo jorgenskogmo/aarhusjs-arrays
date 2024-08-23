@@ -13,6 +13,7 @@
   "dependencies": {
     "@ygoe/msgpack": "^1.0.3",
     "express": "^4.19.2",
-    "object-sizeof": "^2.6.5"
+    "object-sizeof": "^2.6.5",
+    "webgpu-waveform": "^2.0.0"
   }
 }

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>audio</title>
+
+    <style>
+      
+      canvas {
+        border: 2px solid chartreuse;
+        border-radius: 4px;
+        background-color: #253317;
+      }
+    </style>
+
+  </head>
+  <body>
+    <section id="sb">
+      <!--#include file="/chapters.html" -->
+    </section>
+    <section id="main">
+      <div class="dshead">
+        <!--#include file="/ds-aajs-head.html" -->
+        <span style="color:chartreuse">sound<br />
+      </div>
+
+      <button onclick="main()">Generate</button>
+
+      <div id="playground" style="margin-top: 1em;">
+        <canvas id="g" width="800" height="400"></canvas>
+      </div>
+
+      <script type="module">
+        import { GPUWaveformRenderer } from './webgpu-waveform.js';
+        window.GPUWaveformRenderer = GPUWaveformRenderer
+      </script>
+
+      <script>
+
+
+        async function plot3(buffer, DURATION){
+          console.log("plot3")
+          const canvas = document.querySelector("#g");
+          const channelData = buffer.getChannelData( 0 );
+          const renderer = await GPUWaveformRenderer.create(canvas, channelData);
+          const scale = (channelData.length / canvas.width) / DURATION / 250
+          console.log(scale)
+          renderer.render(scale, 0, canvas.width, canvas.height-100);
+        }
+
+    function createCanvas(id, next){
+      const container = document.querySelector("#playground");
+      const canvas = document.createElement("canvas");
+      canvas.setAttribute("width", "800px")
+      canvas.setAttribute("height", "400px")
+      container.appendChild(canvas)
+      setTimeout( next(), 1);
+    }
+
+    async function plotBuffer(buffer, duration){
+      const container = document.querySelector("#playground");
+      const canvas = document.createElement("canvas");
+      canvas.setAttribute("width", "800px")
+      canvas.setAttribute("height", "400px")
+      canvas.setAttribute("id", "c1")
+      container.appendChild(canvas)
+      setTimeout( async () => {
+        const canvas = document.querySelector("#c1");
+        const ctx = canvas.getContext("2d")
+        const channelData = buffer.getChannelData( 0 );
+        const renderer = await GPUWaveformRenderer.create(canvas, channelData);
+        const scale = (channelData.length / canvas.width) / DURATION / 250
+        console.log(scale)
+        renderer.render(scale, 0, canvas.width, canvas.height-100);
+      },1)
+    }
+
+    function plotOld(data, color="red", lineWidth=2){
+      console.log("plotOld", color)
+    
+    
+    const len = data.length
+    
+    const available_width = 800;
+    const hs = 0.5 //Math.max(0.1, available_width / len);
+    console.log(hs)
+    const el = document.querySelector("#g");
+    
+    
+    const ctx = el.getContext("2d")
+    
+    let x = 0;
+    let y = 200;
+    ctx.beginPath()
+    ctx.moveTo(x,y)
+    for(let i=0; i<data.length; i++){
+      const v = data[i] * 150 
+      ctx.lineTo(x, y-v)
+      x += hs
+    }
+    ctx.lineWidth = lineWidth
+    ctx.strokeStyle = color
+    ctx.stroke()
+    ctx.closePath()
+  }
+
+
+    const TAU = 2 * Math.PI
+    const DURATION = 1 //secs
+    const SAMPLE_RATE = 44100
+    const COLORS = ["#f90", "#f09", "#9f0", "#90f", "#0f9", "#09f"];
+
+    function generateSinewave(sampleNumber, frequency=440, gain=1 ) {
+      const angular_frequency = frequency * TAU;
+      let sampleTime = sampleNumber / SAMPLE_RATE;
+      let sampleAngle = sampleTime * angular_frequency;
+      return Math.sin(sampleAngle) * gain;
+    }
+  
+    function genFQ( fq=330, gain=1 ){
+      const wave = new Float32Array(SAMPLE_RATE*DURATION)
+      for (let i = 0 ; i < SAMPLE_RATE*DURATION ; i++) {
+        wave[i] = generateSinewave(i, fq, gain)
+      }
+      return wave
+    }
+
+    function main(){
+      console.log("main")
+
+      let audioContext = new AudioContext();
+      let audioBuffer = audioContext.createBuffer(1, SAMPLE_RATE*DURATION, SAMPLE_RATE);
+      
+      let harmonics = [
+        genFQ(330, 1),
+        genFQ(440, 1),
+        genFQ(330*2, 1),
+        genFQ(330*3, 1),
+      ]
+
+      // plotOld(harmonics[0], "red")
+      // plotOld(harmonics[1], "green")
+      
+      let buf = audioBuffer.getChannelData(0);
+      for (let i = 0 ; i < SAMPLE_RATE*DURATION ; i++) {
+        let value = 0
+        for (let j = 0 ; j < harmonics.length ; j++) {
+          value += harmonics[j][i]
+        }
+        buf[i] = value / harmonics.length
+      }
+      
+      for (let j = 0 ; j < harmonics.length ; j++) {
+        const color = COLORS[j % COLORS.length]
+        plotOld(harmonics[j], color)
+      }
+      plotOld(buf, "chartreuse", 4)
+
+      let src = audioContext.createBufferSource();
+      src.buffer = audioBuffer;  
+      src.connect(audioContext.destination);
+      src.start();
+    }
+    </script>
+    
+    <div class="see">
+      <a href="https://musiclab.chromeexperiments.com/Experiments">https://musiclab.chromeexperiments.com/Experiments</a>
+      <a href="https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer">https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer</a>
+      <a href="https://teropa.info/blog/2016/08/04/sine-waves">https://teropa.info/blog/2016/08/04/sine-waves</a>
+      <a href="https://teropa.info/blog/2016/09/20/additive-synthesis">https://teropa.info/blog/2016/09/20/additive-synthesis</a>
+    </pre>
+    
+
+      
+    </section>
+  </body>
+</html>

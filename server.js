@@ -35,7 +35,15 @@ app.get("*", function (req, res) {
   // console.log( req.path, source )
   if (fs.existsSync(source)) {
     const file = fs.readFileSync(source).toString()
-    res.send( ssi(file) )
+
+    const ext = requestedFile.split(".").pop()
+    if( ext === "js" ){
+      console.log("ext", ext, "text/javascript")
+      res.setHeader('content-type', 'text/javascript');
+      res.send( file )
+    }else{
+      res.send( ssi(file) )
+    }
   }else{
     res.send("404");
   }

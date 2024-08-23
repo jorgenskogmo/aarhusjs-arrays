@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>sound-harmonics</title>
+
+  <style>
+    canvas {
+      border: 1px solid #6f6f6f;
+      border-radius: 4px;
+      background-color: #101011;
+    }
+  </style>
+</head>
+
+<body>
+  <section id="sb">
+    <!--#include file="/chapters.html" -->
+  </section>
+  <section id="main">
+    <div class="dshead">
+      <!--#include file="/ds-aajs-head.html" -->
+      <span style="color: chartreuse">sound</span>-harmonics<br />
+    </div>
+
+    Oscillators<br />
+    <div class="tools">
+      <div>
+        <input type="checkbox" id="o0" />
+        <input id="f0" type="range" min="200" max="2000" value="500"><span id="d0">NA</span> Hz
+      </div>
+      <div>
+        <input type="checkbox" id="o1" />
+        <input id="f1" type="range" min="200" max="2000" value="500"><span id="d1">NA</span> Hz
+      </div>
+      <div>
+        <input type="checkbox" id="o2" />
+        <input id="f2" type="range" min="200" max="2000" value="500"><span id="d2">NA</span> Hz
+      </div>
+    </div>
+
+    <button onclick="main()">Generate</button>
+
+    <div id="playground" style="margin-top: 1em">
+      <canvas id="g" width="800" height="400"></canvas>
+    </div>
+
+    <script>
+
+      let playing = true
+      let FREQUENCIES = []
+
+      // init ui
+      function uiInit() {
+        let html = ''
+        for (let i = 0; i < 10; i++) {
+          html += `<div>
+        <input type="checkbox" id="o${i}" />
+        <input id="f${i}" type="range" min="100" max="10000" value="500" style="width:700px"><span id="d${i}">NA</span> Hz
+      </div>`;
+          document.querySelector("div.tools").innerHTML = html
+        }
+
+
+        for (let i = 0; i < 10; i++) {
+          const checkbox = document.querySelector(`.tools #o${i}`);
+          if (!checkbox) continue
+
+          checkbox.addEventListener("change", (evt) => {
+            const enabled = evt.target.checked
+            ui2data()
+          })
+          // 
+          const range_element = document.querySelector(`.tools #f${i}`);
+          range_element.addEventListener("input", (evt) => {
+            const frequency = parseInt(evt.target.value)
+            document.querySelector(`.tools #d${i}`).innerHTML = frequency
+            ui2data()
+          })
+
+          document.querySelector(`.tools #d${i}`).innerHTML = range_element.value
+          //
+          const frequency = parseInt(range_element.value)
+          FREQUENCIES.push(frequency)
+        }
+      }
+
+      //
+      function uiLoad(preset) {
+        for (let i = 0; i < 10; i++) {
+          const checkbox = document.querySelector(`.tools #o${i}`);
+          if (!checkbox) continue
+
+          if (i < preset.length) {
+            checkbox.checked = true
+            const range_element = document.querySelector(`.tools #f${i}`);
+            range_element.value = preset[i]
+            document.querySelector(`.tools #d${i}`).innerHTML = range_element.value
+          } else {
+            checkbox.checked = false
+          }
+        }
+      }
+
+      // 
+      function ui2data() {
+        let new_frequencies = []
+        for (let i = 0; i < 10; i++) {
+          const checkbox = document.querySelector(`.tools #o${i}`);
+          if (!checkbox) continue
+
+          const enabled = checkbox.checked
+          const frequency = parseInt(document.querySelector(`.tools #f${i}`).value)
+
+          if (enabled) {
+            new_frequencies.push(frequency)
+          }
+        }
+
+        FREQUENCIES = new_frequencies
+
+        if (!playing) main()
+
+      }
+
+      //
+      const p = [330, 660, 800, 1300, 3300]
+
+      let p330 = []
+      for (let i = 0; i < 10; i++) {
+        p330.push(330 * (i + 1))
+      }
+
+      uiInit()
+      uiLoad(p330)
+      ui2data()
+
+      function clearPlot() {
+        const canvas = document.querySelector("#g");
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+      }
+
+
+      function plot(data, color = "red", lineWidth = 2) {
+        const hs = 2.5;
+        const canvas = document.querySelector("#g");
+        const ctx = canvas.getContext("2d");
+        let x = 0;
+        let y = canvas.height / 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        for (let i = 0; i < data.length; i++) {
+          const v = data[i] * 150;
+          ctx.lineTo(x, y - v);
+          x += hs;
+        }
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = color;
+        ctx.stroke();
+        ctx.closePath();
+      }
+
+      const TAU = 2 * Math.PI;
+      const DURATION = 1; //secs
+      const SAMPLE_RATE = 44100;
+      const COLORS = [
+        "#003f5c",
+        "#2f4b7c",
+        "#665191",
+        "#a05195",
+        "#d45087",
+        "#f95d6a",
+        "#ff7c43",
+        "#ffa600",
+      ]; // https://www.learnui.design/tools/data-color-picker.html
+
+      // oscillator
+      function sine_oscillator(frequency = 330, gain = 1) {
+        const angular_frequency = frequency * TAU;
+        const wave = new Float32Array(SAMPLE_RATE * DURATION);
+        for (let i = 0; i < SAMPLE_RATE * DURATION; i++) {
+          wave[i] = Math.sin((i / SAMPLE_RATE) * angular_frequency) * gain;
+        }
+        return wave;
+      }
+
+      function main() {
+        console.log("main", playing)
+        // create a stack of sine oscillators
+        // running at whole number multiples (harmonics) of a fundamental frequency
+
+        // const BASE_FREQUENCY = 440;
+        // let harmonics = [
+        //   sine_oscillator(BASE_FREQUENCY * 1, 1),
+        //   sine_oscillator(BASE_FREQUENCY * 2, 1),
+        //   sine_oscillator(BASE_FREQUENCY * 3, 1),
+        //   sine_oscillator(BASE_FREQUENCY * 4, 1),
+        //   sine_oscillator(BASE_FREQUENCY * 5, 1),
+        // ];
+
+        console.log("FREQUENCIES", FREQUENCIES)
+
+        let harmonics = []
+        FREQUENCIES.forEach(fq => {
+          harmonics.push(sine_oscillator(fq, 1));
+        })
+
+        clearPlot()
+
+        // plot each oscillator
+        for (let j = 0; j < harmonics.length; j++) {
+          const color = COLORS[j % COLORS.length];
+          plot(harmonics[j], color);
+        }
+
+        // setup web-audio
+        const audioContext = new AudioContext();
+        const audioBuffer = audioContext.createBuffer(
+          1,
+          SAMPLE_RATE * DURATION,
+          SAMPLE_RATE
+        );
+        const buffer = audioBuffer.getChannelData(0);
+
+        // additive synthesis: final value at each sample is the average of all curves
+        for (let i = 0; i < SAMPLE_RATE * DURATION; i++) {
+          let value = 0;
+          for (let j = 0; j < harmonics.length; j++) {
+            value += harmonics[j][i];
+          }
+          buffer[i] = value / harmonics.length;
+        }
+
+        // plot result
+        plot(buffer, "chartreuse", 5);
+
+        // setup a web-audio source, fill with the generated wave
+        const src = audioContext.createBufferSource();
+        src.buffer = audioBuffer;
+        src.connect(audioContext.destination);
+        src.start();
+
+        playing = true
+        setTimeout(() => {
+          playing = false
+        }, DURATION * 1000)
+
+      }
+    </script>
+
+    <div class="see">
+      <a
+        href="https://musiclab.chromeexperiments.com/Experiments">https://musiclab.chromeexperiments.com/Experiments</a>
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer">https://developer.mozilla.org/en-US/docs/Web/API/AudioBuffer</a>
+      <a href="https://teropa.info/blog/2016/08/04/sine-waves">https://teropa.info/blog/2016/08/04/sine-waves</a>
+      <a
+        href="https://teropa.info/blog/2016/09/20/additive-synthesis">https://teropa.info/blog/2016/09/20/additive-synthesis</a>
+
+      <a href="https://github.com/AppGeo/web-audio-examples">https://github.com/AppGeo/web-audio-examples</a>
+    </div>
+  </section>
+</body>
+
+</html>
