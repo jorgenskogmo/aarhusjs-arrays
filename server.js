@@ -9,6 +9,7 @@ const port = 3300;
 const webroot = path.join(__dirname, "webroot")
 const ssiroot = path.join(__dirname, "incroot")
 
+
 const ssi = (html) => {
   const lines = html.split("\n")
   const result = lines.map( (line) => {
@@ -28,6 +29,8 @@ const ssi = (html) => {
   return result.join("\n")
 }
 
+app.use('/webstatic', express.static('webstatic'))
+
 app.get("*", function (req, res) {
   let requestedFile = req.path;
   if( requestedFile === "/" ) requestedFile = "/index.html"
@@ -35,12 +38,15 @@ app.get("*", function (req, res) {
   // console.log( req.path, source )
   if (fs.existsSync(source)) {
     const file = fs.readFileSync(source).toString()
-
     const ext = requestedFile.split(".").pop()
     if( ext === "js" ){
       console.log("ext", ext, "text/javascript")
       res.setHeader('content-type', 'text/javascript');
       res.send( file )
+    }else if( ext === "css" ){
+        console.log("ext", ext, "text/css")
+        res.setHeader('content-type', 'text/css');
+        res.send( file )
     }else{
       res.send( ssi(file) )
     }

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>goodbye</title>
+  <link rel="stylesheet" href="shj/themes/github-dim.css">
+</head>
+
+<body>
+  <section id="sb">
+    <!--#include file="/chapters.html" -->
+  </section>
+  <section id="main">
+    <div class="dshead">
+      <!--#include file="/ds-aajs-head.html" -->
+      <span style="font-style: italic;">goodbye</span>
+
+    </div>
+
+    <p>
+      So,
+
+      We have seen
+    </p>
+
+    <div>
+
+      How to use them
+      <div class='shj-lang-js'>
+        const a = [1,2,3].concat(4,5,6).reverse(); // [6, 5, 4, 3, 2, 1]
+        const b = [...Array(10).keys()] // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        const c = a.shift() + b.pop() // 6 + 9 = 15
+      </div>
+
+      What makes them fast
+      <div class='shj-lang-js'>
+        const slow = [1, undefined, "two", {"value":3}, true]; // holes, mixed types
+        const fast = [1,2,3,1]; // same type
+        const faster = new Uint8Array(1,2,3,4); // narrow type
+      </div>
+
+      How JavaScript engines perform better with typed data<br />
+      (and how TypeScript helps ensure that)
+      <div class='shj-lang-js'>
+        // [ JS ] -> [AST] -> [Sparkplug/Maglev/Turbofan]
+      </div>
+
+
+      How ArrayBuffers and a "data only" approach to i/o is used for
+      <div class='shj-lang-js'>
+        // web-bluetooth
+        new Uint8Array([0x08, 0x00, 0x81, 0x00, 0x11, 0x51, 0x00, 0x64]); // LEGO LPF2 Motor command
+
+        // web-audio
+        new Float648Array([1065353216, 1065353224]); // Audio Waveform synth
+
+        // canvas
+        new Uint8ClampedArray() /* or */ createImageData(); // Batch update
+
+        // payload optimisation
+        [1,"DD37Cf93aecA6Dc","Sheryl","Baxter"]
+      </div>
+
+
+    </div>
+
+    <div class="see">
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures">MDN/JavaScript/Data_structures</a>
+    </div>
+
+
+  </section>
+
+  <script type="module">
+    import { highlightAll } from './shj/index.js';
+    highlightAll();
+
+  </script>
+</body>
+
+</html>

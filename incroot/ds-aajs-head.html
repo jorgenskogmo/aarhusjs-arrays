@@ -33,7 +33,9 @@
   .see {
     margin-top: 1em;
   }
-  .see a {
+
+  .see a,
+  .see a:visited {
     background-color: #392544;
     padding: 4px 8px;
     color: #d07fff;
@@ -50,9 +52,31 @@
     margin: 1em 0;
   }
 
+  /* .shj-lang-js { */
+  [class*=shj-lang-] {
+    font-size: 14px;
+    line-height: 18px;
+    font-family: monospace;
+    padding: 10px 10px;
+    border-radius: 4px;
+    background: #1d1d1d;
+  }
+
+  [class*=shj-lang-]>div :last-child {
+    flex: 1;
+    outline: none;
+    padding-left: 10px;
+    white-space: pre-line;
+  }
+
+  section {
+    max-width: 80vw;
+  }
+
   section#sb:hover {
     opacity: 1;
   }
+
   section#sb {
     opacity: 0.3;
     /* background-color: #111; */
@@ -87,10 +111,41 @@
       margin-bottom: 4px;
     }
   }
+
   section#main {
     padding-top: 0.5em;
     padding-right: 0.5em;
   }
+
+  /**/
+
+  p {
+    margin: 2em 0;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  table.csbits {
+    margin: 1em 0;
+    border-collapse: collapse;
+
+    td {
+      border: 1px solid #fff;
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      white-space: nowrap;
+      padding: 5px 10px;
+    }
+
+    td.label {
+      border: 0;
+    }
+  }
+
+  /**/
 
   button {
     background-color: #000;
@@ -102,11 +157,13 @@
     margin: 4px;
     /* font-size: xx-large; */
   }
+
   button:hover,
   button:focus {
     background-color: #00243b;
     outline: 1px solid #09f;
   }
+
   button:active {
     background-color: #09f;
     outline: 1px solid #09f;
@@ -115,8 +172,7 @@
 </style>
 
 <span style="font-size: small; padding-left: 0.5em">240903</span><br /><br />
-<span style="background-color: #000; padding: 1em; margin-top: 1em"
-  >dearstudio</span
->@aarhusjs on <span class="code">arrays!</span> :
+<span style="background-color: #000; padding: 1em; margin-top: 1em">dearstudio</span>@aarhusjs on <span
+  class="code">arrays!</span> :
 <!-- <span style="color: #fffb00">web-bluetooth</span>-mario<br /> -->
 <!-- </xxdiv> -->

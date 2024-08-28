@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>bits</title>
+  <link rel="stylesheet" href="shj/themes/github-dim.css">
+</head>
+
+<body>
+  <section id="sb">
+    <!--#include file="/chapters.html" -->
+  </section>
+  <section id="main">
+    <div class="dshead">
+      <!--#include file="/ds-aajs-head.html" -->
+      <span style="color:chartreuse">methods<br />
+    </div>
+
+    a <code>bit</code> of computer science
+
+    So, lets take a look at what makes arrays are so fast.
+    <br />
+    <br />
+    - Or rather,<br />
+    <em>how you can keep your arrays fast.</em>
+
+    <div class='shj-lang-js'>
+      const arr = [];
+      arr[0] = "on a scale from"
+      arr[1] = 1
+      arr[2] = "to"
+      arr[3] = 10
+      arr[4] = ", is this example going to be fast?"
+      // answer: false
+
+      const question = arr.join(" ")
+    </div>
+
+    Is this example valid?<br />
+
+    - Resize for each addition<br />
+    - Mixed data type (strings, numbers, booleans)<br />
+
+
+    <div class='shj-lang-js'>
+      // Avoid resize
+
+
+      const arr = new Array(5);
+
+      // or
+
+      const arr = ["on a scale from", 1, "to", 10, ", is this example going to be fast?", {answer: false}]
+    </div>
+
+    <div class='shj-lang-js'>
+      // Unify data type
+      // array-cs-01.js
+
+      const strings = ["on a scale from", "to", ", is this example going to be fast?"]
+
+      const arr = [ 0, 1, 1, 10, 2 ]
+
+      const question = `${strings[arr[0]]} ${arr[1]} ${strings[arr[2]]} ${arr[3]}${strings[arr[4]]}`; //?
+
+    </div>
+
+    Now, this approach is questionable (although there is three "wins":
+    - $strings is easy to translate
+    - $arr and $strings has a uniform data type
+    - control of formatting of the $question is close (at) to the feature
+    )
+
+    but what I want to focus on here is the `uniform` data advantage.
+
+    You see,
+
+    <hr>
+
+    <h3>low-level arrays</h3>
+
+    <p>
+      In low-level languages (e.g. C, C++, Obj-C, and Rust, Swift via their 'unsafe' mechanism),
+      arrays are declared with a fixed type, fixed size/length and stored in contiguous memory (a unbroken block of
+      RAM).
+
+    <div class='shj-lang-c'>
+      uint8_t myArray[5] = {1, 2, 3, 4, 5}; // An initialized array
+    </div>
+
+    The <em>type</em> (<code>int</code> in this example) maps directly to how many bits to reserve for each element,
+    <br />and the total byte-size of the array is simply <code>arr.length * sizeof(arr.type)</code>.</p>
+
+    <p>
+      a The common <code>uint8_t</code> (or, <code>UInt8</code> as we know it from JS) is a 8-bit (1byte) value - e.g. a
+      number from 0..255.
+    </p>
+
+    A table with a 8-bits data type, storing the same <code class='shj-lang-c'>myArray</code> from above
+    <table class="csbits">
+      <tr>
+        <td class="label">index</td>
+        <td>0</td>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+        <td>4</td>
+      </tr>
+      <tr>
+        <td class="label">value</td>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+        <td>4</td>
+        <td>5</td>
+      </tr>
+      <tr>
+        <td class="label">bits</td>
+        <td>0000 0001</td>
+        <td>0000 0010</td>
+        <td>0000 0011</td>
+        <td>0000 0100</td>
+        <td>0000 0101</td>
+      </tr>
+    </table>
+
+    <p>
+      In C, the variable <code class='shj-lang-c'>myArray</code> is a <code>pointer</code> to the memory address of
+      where this array begins, so
+
+    <div class='shj-lang-c'>
+      uint8_t a = myArray[0]; // move to the memory address stored in the 'myArray' pointer, read 1byte
+      uint8_t a = *myArray; // equivalent
+    </div>
+
+    and, as the type (which equals the byte-size of an element) is known,
+    <div class='shj-lang-c'>
+      uint8_t b = myArray[1]; // move to the memory address stored in the 'myArray' pointer + 1byte, read 1byte
+      uint8_t b = *(myArray + 1); // equivalent
+    </div>
+
+    Constant time access, computable indexing, fixed (and tight) memory size.
+
+
+    <hr>
+
+    <h3>Numbers in JS</h3>
+
+    In JS, all <code>number</code>s are encoded in 64-bits, using a floating point representation (defined in the IEEE
+    754-1985 standard).
+
+
+    <div class="shj-lang-js">
+      // ¯\_(ツ)_/¯
+      console.log("0.1 + 0.2 = ", 0.1 + 0.2); // 0.30000000000000004
+
+      // the JS "number" type can store larger integers (up to 1.7976931348623157 * 10308),
+      // but outside of the safe integer range ±(2^53 -1, that's 9007199254740991) there'll be a precision error:
+      console.log("9007199254740991 + 1 =", 9007199254740991 + 1); // 9007199254740992
+      console.log("9007199254740991 + 2 =", 9007199254740991 + 2); // 9007199254740992
+    </div>
+
+
+    The table from above, with a 64-bits data type, storing the same data:
+    <table class="csbits">
+      <tr>
+        <td class="label">index</td>
+        <td>0</td>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+        <td>4</td>
+      </tr>
+      <tr>
+        <td class="label">value</td>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+        <td>4</td>
+        <td>5</td>
+      </tr>
+      <tr>
+        <td class="label">bits</td>
+        <td>0000 0000 0000 0000<br />0000 0000 0000 0000<br />0000 0000 0000 0000<br />0000 0000 0000 0001</td>
+        <td>0000 0000 0000 0000<br />0000 0000 0000 0000<br />0000 0000 0000 0000<br />0000 0000 0000 0010</td>
+        <td>0000 0000 0000 0000<br />0000 0000 0000 0000<br />0000 0000 0000 0000<br />0000 0000 0000 0011</td>
+        <td>0000 0000 0000 0000<br />0000 0000 0000 0000<br />0000 0000 0000 0000<br />0000 0000 0000 0100</td>
+        <td>0000 0000 0000 0000<br />0000 0000 0000 0000<br />0000 0000 0000 0000<br />0000 0000 0000 0101</td>
+      </tr>
+    </table>
+
+
+
+    <div class="see">
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures">MDN/JavaScript/Data_structures</a>
+    </div>
+
+  </section>
+
+  <script type="module">
+    import { highlightAll } from './shj/index.js';
+
+    highlightAll();
+  </script>
+
+</body>
+
+</html>

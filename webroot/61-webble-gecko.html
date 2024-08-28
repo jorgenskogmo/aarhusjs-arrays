@@ -1,36 +1,38 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>web-bluetooth: gecko</title>
-  </head>
-  <body>
-    <section id="sb">
-      <!--#include file="/chapters.html" -->
-    </section>
-    <section id="main">
-      <div class="dshead">
-        <!--#include file="/ds-aajs-head.html" -->
-        <span style="color: rgb(0, 170, 255)">web-bluetooth</span>-spike<br />
-      </div>
 
-      <div class="tools">
-        <button onclick="connect()">Connect</button>
-        <button onclick="startMotor(100)">Rotate CW</button>
-        <button onclick="startMotor(-100)">REW</button>
-        <button onclick="stopMotor()">Stop</button>
-        <input id="speed_in" type="range" min="-100" max="100" value="0" />
-        Speed
-        <span id="speed_out">NA</span>
+<head>
+  <title>web-bluetooth: gecko</title>
+</head>
 
-        <button onclick="disconnect()">Disconnect</button>
-      </div>
+<body>
+  <section id="sb">
+    <!--#include file="/chapters.html" -->
+  </section>
+  <section id="main">
+    <div class="dshead">
+      <!--#include file="/ds-aajs-head.html" -->
+      <span style="color: rgb(0, 170, 255)">web-bluetooth</span>-spike<br />
+    </div>
 
-      <div class="code">
-        <pre>
-    
-    Example LPF2 command to send full PWM power to port 0
+    <div class="tools">
+      <button onclick="connect()">Connect</button>
+      <button onclick="startMotor(100)">Rotate CW</button>
+      <button onclick="startMotor(-100)">REW</button>
+      <button onclick="stopMotor()">Stop</button>
+      <input id="speed_in" type="range" min="-100" max="100" value="0" />
+      Speed
+      <span id="speed_out">NA</span>
 
-    # Byte structure:
+      <button onclick="disconnect()">Disconnect</button>
+    </div>
+
+    <div class="code">
+      <pre>
+
+    Example LPF2 command to send PWM power to port 0
+
+    # LPF2 Byte structure:
     0: Command length (8 bytes)
     |    1: Execute immediately (always 0)
     |    |    2: Command code (Port Output)
@@ -38,7 +40,7 @@
     |    |    |    |    4: Mode
     |    |    |    |    |    5: Sub-command (WriteDirectModeData)
     |    |    |    |    |    |    6: Payload checksum (?)
-    |    |    |    |    |    |    |    7: Value (100)
+    |    |    |    |    |    |    |    7: Value (100, e.g. full speed)
     |    |    |    |    |    |    |    |        
     0x08 0x00 0x81 0x00 0x11 0x51 0x00 0x64 
 
@@ -46,93 +48,89 @@
     new Uint8Array([0x08, 0x00, 0x81, 0x00, 0x11, 0x51, 0x00, 0x64])
     
     # JS, as decimal encoded values
-    new Uint8Array([8, 0, 129, 0, 17, 81, 0, speed])
+    new Uint8Array([8, 0, 129, 0, 17, 81, 0, 100])
 
-    </pre
-        >
-      </div>
+    </pre>
+    </div>
 
-      <div class="see">
-        <a
-          href="https://lego.github.io/lego-ble-wireless-protocol-docs/index.html"
-          >https://lego.github.io/lego-ble-wireless-protocol-docs/index.html</a
-        >
-        <a
-          href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API"
-          >https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API</a
-        >
-      </div>
-    </section>
+    <div class="see">
+      <a
+        href="https://lego.github.io/lego-ble-wireless-protocol-docs/index.html">https://lego.github.io/lego-ble-wireless-protocol-docs/index.html</a>
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API">https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API</a>
+    </div>
+  </section>
 
-    <script>
-      let characteristic = undefined; // BluetoothRemoteGATTCharacteristic
+  <script>
+    let characteristic = undefined; // BluetoothRemoteGATTCharacteristic
 
-      let speed = 0;
-      let range_element = document.querySelector("#speed_in");
-      range_element.value = speed;
+    let speed = 0;
+    let range_element = document.querySelector("#speed_in");
+    range_element.value = speed;
+    document.getElementById("speed_out").innerHTML = `${speed}`;
+    range_element.addEventListener("input", (e) => {
+      speed = parseInt(e.target.value);
+      console.log("speed", speed);
       document.getElementById("speed_out").innerHTML = `${speed}`;
-      range_element.addEventListener("input", (e) => {
-        speed = parseInt(e.target.value);
-        console.log("speed", speed);
-        document.getElementById("speed_out").innerHTML = `${speed}`;
-        startMotor(speed);
-      });
+      startMotor(speed);
+    });
 
-      async function startMotor(speed /* -100..100 */) {
-        try {
-          await characteristic.writeValue(
-            new Uint8Array([8, 0, 129, 49, 17, 81, 0, 1]) // red led
-          );
-          await characteristic.writeValue(
-            new Uint8Array([8, 0, 129, 0, 17, 81, 0, speed]) // assume motor connected to port 0
-          );
-        } catch (e) {}
-      }
-
-      async function stopMotor() {
-        const speed = 127; // brake
+    async function startMotor(speed /* -100..100 */) {
+      try {
         await characteristic.writeValue(
-          new Uint8Array([8, 0, 129, 49, 17, 81, 0, 0]) // no led
+          new Uint8Array([8, 0, 129, 49, 17, 81, 0, 1]) // red led
         );
         await characteristic.writeValue(
           new Uint8Array([8, 0, 129, 0, 17, 81, 0, speed]) // assume motor connected to port 0
         );
-      }
+      } catch (e) { }
+    }
 
-      async function disconnect() {
-        await characteristic.writeValue(new Uint8Array([4, 0, 2, 2]));
-        console.log("disconnecting...");
-      }
+    async function stopMotor() {
+      const speed = 127; // brake
+      await characteristic.writeValue(
+        new Uint8Array([8, 0, 129, 49, 17, 81, 0, 0]) // no led
+      );
+      await characteristic.writeValue(
+        new Uint8Array([8, 0, 129, 0, 17, 81, 0, speed]) // assume motor connected to port 0
+      );
+    }
 
-      async function connect() {
-        console.log("connecting...");
+    async function disconnect() {
+      await characteristic.writeValue(new Uint8Array([4, 0, 2, 2]));
+      console.log("disconnecting...");
+    }
 
-        let device = undefined; // BluetoothDevice
+    async function connect() {
+      console.log("connecting...");
 
-        try {
-          device = await navigator.bluetooth.requestDevice({
-            filters: [{ services: ["00001623-1212-efde-1623-785feabcd123"] }],
-          });
-        } catch (err) {
-          return;
-        }
+      let device = undefined; // BluetoothDevice
 
-        device.addEventListener("gattserverdisconnected", () => {
-          console.log("disconnected");
+      try {
+        device = await navigator.bluetooth.requestDevice({
+          filters: [{ services: ["00001623-1212-efde-1623-785feabcd123"] }],
         });
-
-        let server = await device.gatt.connect();
-
-        let service = await server.getPrimaryService(
-          "00001623-1212-efde-1623-785feabcd123"
-        );
-
-        characteristic = await service.getCharacteristic(
-          "00001624-1212-efde-1623-785feabcd123"
-        );
-
-        console.log("connected!");
+      } catch (err) {
+        return;
       }
-    </script>
-  </body>
+
+      device.addEventListener("gattserverdisconnected", () => {
+        console.log("disconnected");
+      });
+
+      let server = await device.gatt.connect();
+
+      let service = await server.getPrimaryService(
+        "00001623-1212-efde-1623-785feabcd123"
+      );
+
+      characteristic = await service.getCharacteristic(
+        "00001624-1212-efde-1623-785feabcd123"
+      );
+
+      console.log("connected!");
+    }
+  </script>
+</body>
+
 </html>

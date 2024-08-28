@@ -1,55 +1,75 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>ref type</title>
-  </head>
-  <body>
-    <section id="sb">
-      <!--#include file="/chapters.html" -->
-    </section>
-    <section id="main">
-      <div class="dshead">
-        <!--#include file="/ds-aajs-head.html" -->
-        <span style="color:chartreuse">methods<br />
-      </div>
 
-      welcome
-<pre>
-  // copy || reference
+<head>
+  <title>ref type</title>
+  <link rel="stylesheet" href="shj/themes/github-dim.css">
+</head>
 
-class Foo {
-  friends: Number[];
-  id: Number;
-  constructor(id: Number, friends: Number[]) {
-    this.id = id;
-    this.friends = friends;
-  }
-}
+<body>
+  <section id="sb">
+    <!--#include file="/chapters.html" -->
+  </section>
+  <section id="main">
+    <div class="dshead">
+      <!--#include file="/ds-aajs-head.html" -->
+      <span style="color:chartreuse">methods<br />
+    </div>
 
-function Bar(id: Number, friends: Number[]) {
-  this.id = id;
-  this.friends = friends;
-}
+    Javascript has Primitive and Reference data types.
 
-let foos: Foo[] = [];
-let list: Number[] = [];
+    The difference is that, when you assign a value to a primitive data type, the value is stored in that variable,
+    but when you assign to a reference data type, the variable is just a pointer the location in memory that holds the
+    value.
 
-for (let i = 0; i < 5; i++) {
-  list.push(i);
-  foos.push(new Foo(i, list));
-  // foos.push( new Bar(i, list))
-  console.log(`at ${i}, list is ${list}`);
-}
+    <div><code class='shj-lang-js'>
+      class Foo {
+        constructor(id, friends) {
+          this.id = id;
+          this.friends = friends;
+        }
+      }
 
-console.log("after loop:", list, foos);
+      // array of Foo instances:
+      const foos = [];
 
-list.push(888);
+      // array of numbers:
+      const list = [];
 
-console.log("done:", list, foos);
-
-</pre>      
-
+      for (let i=0; i < 5; i++) {
+        list.push(i);
+        foos.push(new Foo(i, list));
+      }
       
-    </section>
-  </body>
+      // Who can tell me the length of foos?
+      console.log("foos.length:", foos.length); 
+
+      // Who can tell me the value of foos[0].friends?
+      console.log("foos[0].friends:", foos[0].friends); 
+
+      // lets use Quokka for this
+      //
+      // array-reftype.js
+    
+    </code>
+    </div>
+
+    <div class="see">
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures">MDN/JavaScript/Data_structures</a>
+
+      <a
+        href="https://www.freecodecamp.org/news/primitive-vs-reference-data-types-in-javascript/">primitive-vs-reference-data-types-in-javascript/</a>
+    </div>
+
+  </section>
+
+  <script type="module">
+    import { highlightAll } from './shj/index.js';
+
+    highlightAll();
+  </script>
+
+</body>
+
 </html>

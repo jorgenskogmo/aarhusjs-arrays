@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>v8</title>
+  <link rel="stylesheet" href="shj/themes/github-dim.css">
+</head>
+
+<body>
+  <section id="sb">
+    <!--#include file="/chapters.html" -->
+  </section>
+  <section id="main">
+    <div class="dshead">
+      <!--#include file="/ds-aajs-head.html" -->
+      <span style="color:#09f">v8<br />
+    </div>
+
+    v8
+
+    <pre>
+    used in the following software:
+    - Chromium-based web browsers (Google Chrome, Brave, Opera, Vivaldi and Microsoft Edge)
+    - Deno, Node.js
+    - Electron desktop application framework (Atom and Visual Studio Code)
+    - Couchbase database server
+    
+    Alternatives: SpiderMonkey (Firefox), JavaScriptCore (Apple), Hermes (Facebook)
+    </pre>
+
+
+    <img src="webstatic/addyosmani.png" />
+
+    <pre>
+
+      For V8, 
+
+      ┌────────────────────┐   
+      │ Javascript source  │   
+      └────────────────────┘   
+                 │             
+                 │             
+                 ▼  
+      ┌────────────────────┐   
+      │   Scanner, Parser  │    AST generation
+      └────────────────────┘   
+                 │             
+                 │             
+                 ▼            
+      ┌────────────────────┐   
+      │      Ignition      │◀─┐ fast low-level register-based <span style="color:#09f;">interpreter</span>
+      └────────────────────┘  │ javascript -> bytecode
+                 │            │
+                 │            │  --- from this point onwards, there is no more Javascript...
+                 ▼            │
+      ┌────────────────────┐  │
+      │     Sparkplug      │  │ non-optimizing <span style="color:#09f;">JIT* compiler</span>
+      └────────────────────┘  │ bytecode -> machine-code
+                 │            │
+                 │            │
+                 ▼            │
+      ┌────────────────────┐  │
+      │       Maglev       │  │ optimizing <span style="color:#09f;">JIT* compiler</span>
+      └────────────────────┘  │ "fast optimizing compiler that generates good enough code, fast enough."
+                 │            │
+                 │            │<--  deoptimization *
+                 ▼            │
+      ┌────────────────────┐  │
+      │      Turbofan      │──┘  optimising <span style="color:#09f;">JIT* Compiler</span>
+      └────────────────────┘     "optimizing compiler that generates our fastest code. peak performance"
+    </pre>
+
+
+    <p>
+      Purpose: To stop running interpreted Javascript as soon as possible
+    </p>
+
+    <p>
+      The deoptimization path is important.<br />
+      <br />
+      As JS is a scripting language, the compiler can never see the entire program flow at once,
+      but needs to learn as it plays out.
+      <br /><br />
+      + Objects are initially allocated with more capacity than they need (as there might be props added to them
+      later)<br />
+      + Speculative optimisations can be rolled back and re-optimized when assumptions change (new parameter types)
+    </p>
+
+
+    <pre>
+
+Speed optimizations                                                  
+   ▲                                                                 
+   │                                                                 
+   │                                                                 
+   │                                                                 
+   │                                                                 
+   │                                             ┌────────────┐      
+   │                                             │  Turbofan  │      
+   │                                             └────────────┘      
+   │                               ┌────────────┐                    
+   │                               │   Maglev   │                    
+   │                               └────────────┘                    
+   │                 ┌────────────┐                                  
+   │                 │ Sparkplug  │                                  
+   │                 └────────────┘                                  
+   │    ┌────────────┐                                               
+   │    │  Ignition  │                                               
+   │    └────────────┘                                               
+ ──┼────────────────────────────────────────────────────────────────▶
+   │                         Compile Time                            
+                                                                     
+                                                                     
+                                                                     
+                                   High Memory use                   
+                                   High Energy use (-> battery life) 
+                                                                     
+    </pre>
+
+    <p>
+      Now, for certain platforms (iOS), JIT is not allowed. <br />
+      (or, more specifically; prohibit write access to executable memory for non-privileged applications)<br />
+      <br />
+      Since v7.4 (22 March 2019) V8 supports JavaScript execution without allocating executable memory at runtime,<br />
+      relying on Ignition only.
+
+    </p>
+
+    <code class='shj-lang-js'>
+
+      // --no-opt : disables turbofan (and others?)
+      // --jitless --no-expose_wasm : disables all runtime allocation of executable memory
+      
+
+      console.time("run")
+      let iterations = 0, sum = 0
+      for(let i=0; i < 1000; i++){
+        for(let j=0; j < 1000*1000; j++){
+          sum += j
+          iterations ++
+        }
+      }
+      console.timeEnd("run")
+      console.log("iterations:", iterations)
+    </code>
+
+
+    <h3>JavaScript is not fast, browser are</h3>
+
+
+
+    <div class="see">
+      <a href="https://v8.dev/blog">https://v8.dev/blog</a>
+
+      <a
+        href="https://medium.com/reloading/javascript-start-up-performance-69200f43b201">https://medium.com/reloading/javascript-start-up-performance-69200f43b201</a>
+
+      <a
+        href="https://ponyfoo.com/articles/an-introduction-to-speculative-optimization-in-v8">https://ponyfoo.com/articles/an-introduction-to-speculative-optimization-in-v8</a>
+
+      <a
+        href="https://doar-e.github.io/blog/2019/01/28/introduction-to-turbofan/#the-d8-shell">https://doar-e.github.io/blog/2019/01/28/introduction-to-turbofan/#the-d8-shell</a>
+
+      <a
+        href="https://webkit.org/blog/10308/speculation-in-javascriptcore/">https://webkit.org/blog/10308/speculation-in-javascriptcore/</a>
+    </div>
+  </section>
+
+  <script type="module">
+    import { highlightAll } from './shj/index.js';
+
+    highlightAll();
+  </script>
+
+</body>
+
+</html>

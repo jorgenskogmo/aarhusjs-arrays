@@ -1,148 +1,160 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>canvas</title>
-  </head>
-  <body>
-    <section id="sb">
-      <!--#include file="/chapters.html" -->
-    </section>
-    <section id="main">
-      <div class="dshead">
-        <!--#include file="/ds-aajs-head.html" -->
-        <span style="color:deeppink">canvas<br />
-      </div>
 
-      Update all pixels of a canvas each frame, using<br />
-      <input type="radio" name="mode" value="pix"> pixel by pixel (using <input id="cellsize" type="range" min="1" max="50" value="5"> cell size of <span id="cellsize_out">NA</span>)<br />
-      <input type="radio" name="mode" value="buf"> buffer<br />
+<head>
+  <title>canvas</title>
+</head>
 
-      
+<body>
+  <section id="sb">
+    <!--#include file="/chapters.html" -->
+  </section>
+  <section id="main">
+    <div class="dshead">
+      <!--#include file="/ds-aajs-head.html" -->
+      <span style="color:deeppink">canvas<br />
+    </div>
 
-      <div id="playground" style="margin-top: 1em;">
-        <canvas id="g"></canvas>
-      </div>
-      <div id="fps"></div>
-      updating <span id="cellcount_out">XX</span> pixels
-
-      <div class="see">
-        Further reading:<br />
-        <a href="https://hacks.mozilla.org/2011/12/faster-canvas-pixel-manipulation-with-typed-arrays/">https://hacks.mozilla.org/2011/12/faster-canvas-pixel-manipulation-with-typed-arrays/</a>
-      </div>
-      
-    </section>
-
-<script>
-      
-
-const size = { w: 0, h: 0 };
-
-let g;
-let ctx;
-let imageData;
-let buffer;
-
-let cellsize = 10;
-const times = [];
-let mode = "pix"
+    Update all pixels of a canvas each frame, using<br />
+    <input type="radio" name="mode" value="pix"> pixel by pixel (using <input id="cellsize" type="range" min="1"
+      max="50" value="5"> cell size of <span id="cellsize_out">NA</span>)<br />
+    <input type="radio" name="mode" value="buf"> buffer<br />
 
 
 
-const update = () => {
-  // A
-  if( mode === "pix" ){
-    let count = 0
-    const blockSize = cellsize || 2;
-    for (let y = 0; y < size.h; y += blockSize) {
-      for (let x = 0; x < size.w; x += blockSize) {
-        const color = Math.floor(Math.random() * 255);
-        ctx.fillStyle = `rgb(${color},${color},${color},1)`;
-        ctx.fillRect(x, y, blockSize, blockSize);
-        count ++
+    <div id="playground" style="margin-top: 1em;">
+      <canvas id="g"></canvas>
+    </div>
+    <div id="fps"></div>
+    updating <span id="cellcount_out">XX</span> pixels
+
+    <div class="see">
+      Further reading:<br />
+      <a
+        href="https://hacks.mozilla.org/2011/12/faster-canvas-pixel-manipulation-with-typed-arrays/">https://hacks.mozilla.org/2011/12/faster-canvas-pixel-manipulation-with-typed-arrays/</a>
+
+      <a
+        href="https://jsbenchmark.com/#eyJjYXNlcyI6W3siaWQiOiJ0ZmNSYkxGVGtxRUMtbmVnQTJsM1UiLCJjb2RlIjoiKE1hdGgucmFuZG9tKCkgKiAyNTUpIDw8IDA7IiwibmFtZSI6ImJpdHdpc2UgZmxvb3IiLCJkZXBlbmRlbmNpZXMiOltdfSx7ImlkIjoiN3h4NHdDVlJCYU5sa2J2RHhNX2JRIiwiY29kZSI6Ik1hdGguZmxvb3IoTWF0aC5yYW5kb20oKSAqIDI1NSk7IiwibmFtZSI6Im1hdGggZmxvb3IiLCJkZXBlbmRlbmNpZXMiOltdfV0sImNvbmZpZyI6eyJuYW1lIjoiQmFzaWMgZXhhbXBsZSIsInBhcmFsbGVsIjp0cnVlLCJnbG9iYWxUZXN0Q29uZmlnIjp7ImRlcGVuZGVuY2llcyI6W119LCJkYXRhQ29kZSI6IiJ9fQ">bitwise
+        vs math floor perf</a>
+    </div>
+
+  </section>
+
+  <script>
+
+
+    const size = { w: 0, h: 0 };
+
+    let g;
+    let ctx;
+    let imageData;
+    let buffer;
+
+    let cellsize = 50;
+    const times = [];
+    let mode = "pix"
+
+
+
+    const update = () => {
+      // A
+      if (mode === "pix") {
+        let count = 0
+        const blockSize = cellsize || 2;
+        for (let y = 0; y < size.h; y += blockSize) {
+          for (let x = 0; x < size.w; x += blockSize) {
+            // const color = Math.floor(Math.random() * 255);
+            const color = (Math.random() * 255) << 0;
+            ctx.fillStyle = `rgb(${color},${color},${color},1)`;
+            ctx.fillRect(x, y, blockSize, blockSize);
+            count++
+          }
+        }
+        document.getElementById("cellcount_out").innerHTML = `${count}`
       }
-    }
-    document.getElementById("cellcount_out").innerHTML = `${count}`
-  }
 
-  // B
-  if( mode === "buf" ){
-    for (let i = 0; i < buffer.length; i += 4) {
-      const color = Math.floor(Math.random() * 255);
-      buffer[i + 0] = color;
-      buffer[i + 1] = color;
-      buffer[i + 2] = color;
-      buffer[i + 3] = 255;
-    }
-    ctx.putImageData(imageData, 0, 0);
-    document.getElementById("cellcount_out").innerHTML = `${buffer.length/4}`
-  }
+      // B
+      if (mode === "buf") {
+        for (let i = 0; i < buffer.length; i += 4) {
+          // const color = Math.floor(Math.random() * 255);
+          const color = (Math.random() * 255) << 0;
+          buffer[i + 0] = color;
+          buffer[i + 1] = color;
+          buffer[i + 2] = color;
+          buffer[i + 3] = 255;
+        }
+        ctx.putImageData(imageData, 0, 0);
+        document.getElementById("cellcount_out").innerHTML = `${buffer.length / 4}`
+      }
 
-  // FPS
-  const now = performance.now();
-  while (times.length > 0 && times[0] <= now - 1000) {
-    times.shift();
-  }
-  times.push(now);
-  fps_element.innerText = `FPS: ${times.length}`;
+      // FPS
+      const now = performance.now();
+      while (times.length > 0 && times[0] <= now - 1000) {
+        times.shift();
+      }
+      times.push(now);
+      fps_element.innerText = `FPS: ${times.length}`;
 
-  requestAnimationFrame(update);
-};
+      requestAnimationFrame(update);
+    };
 
-//
+    //
 
-const setup = async () => {
-  const dpi = window.devicePixelRatio;
+    const setup = async () => {
+      const dpi = 1 //window.devicePixelRatio;
 
-  size.w = Math.floor(window.innerWidth-220);
-  size.h = Math.round((size.w * 9) / 16);
-  
-  g = document.querySelector("#g");
-  g.setAttribute("width", size.w)
-  g.setAttribute("height", size.h)
-  g.width = size.w * dpi;
-  g.height = size.h * dpi;
-  g.style.width = size.w + "px";
-  g.style.height = size.h + "px";
-  await sleep(10);
-  
-  ctx = g.getContext("2d");
-  ctx.scale(dpi, dpi);
+      size.w = Math.floor(window.innerWidth - 220);
+      size.h = Math.round((size.w * 9) / 16);
 
-  imageData = ctx.createImageData(size.w, size.h);
-  buffer = imageData.data;
+      g = document.querySelector("#g");
+      g.setAttribute("width", size.w)
+      g.setAttribute("height", size.h)
+      g.width = size.w * dpi;
+      g.height = size.h * dpi;
+      g.style.width = size.w + "px";
+      g.style.height = size.h + "px";
+      await sleep(10);
 
-  console.log("Pixels:", size.w * size.h);
-  console.log("imageData:", imageData)
-  
-  update();
-};
+      ctx = g.getContext("2d");
+      ctx.scale(dpi, dpi);
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      imageData = ctx.createImageData(size.w, size.h);
+      buffer = imageData.data;
 
-// ui
-let fps_element = document.querySelector("#fps")
+      console.log("Pixels:", size.w * size.h);
+      console.log("imageData:", imageData)
 
-document.querySelectorAll("input[type=radio][name=mode]").forEach(input => {
-  input.addEventListener("change", (e) => {
-    mode = e.target.value
-  })
-  if( input.value === "pix" ){
-    input.setAttribute("checked", true)
-  }
-})
+      update();
+    };
 
-let range_element = document.querySelector("#cellsize")
-range_element.value = cellsize;
-document.getElementById("cellsize_out").innerHTML = `${cellsize}`
-range_element.addEventListener("change", (e) => {
-  cellsize = parseInt( e.target.value )
-  console.log("cellsize", cellsize)
-  document.getElementById("cellsize_out").innerHTML = `${cellsize}`
-  //document.getElementById("cellcount_out").innerHTML = `${((size.w * size.h) / (cellsize * 2))}`
-})
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-setup()
+    // ui
+    let fps_element = document.querySelector("#fps")
 
-</script>
-  </body>
+    document.querySelectorAll("input[type=radio][name=mode]").forEach(input => {
+      input.addEventListener("change", (e) => {
+        mode = e.target.value
+      })
+      if (input.value === "pix") {
+        input.setAttribute("checked", true)
+      }
+    })
+
+    let range_element = document.querySelector("#cellsize")
+    range_element.value = cellsize;
+    document.getElementById("cellsize_out").innerHTML = `${cellsize}`
+    range_element.addEventListener("change", (e) => {
+      cellsize = parseInt(e.target.value)
+      console.log("cellsize", cellsize)
+      document.getElementById("cellsize_out").innerHTML = `${cellsize}`
+      //document.getElementById("cellcount_out").innerHTML = `${((size.w * size.h) / (cellsize * 2))}`
+    })
+
+    setup()
+
+  </script>
+
+</body>
+
 </html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>xml/csv/json</title>
+  <link rel="stylesheet" href="shj/themes/github-dim.css">
+</head>
+
+<body>
+  <section id="sb">
+    <!--#include file="/chapters.html" -->
+  </section>
+
+  <section id="main">
+    <div class="dshead">
+      <!--#include file="/ds-aajs-head.html" -->
+      <span style="color:chartreuse">data<br />
+    </div>
+
+    Data
+
+    <p>
+      OK, enough about dense, tight and clean data.<br />
+      Lets look at some topics closer to the world of frontend dev.
+    </p>
+
+    <p>
+      Consider data of the following <i>shape</i>:
+    </p>
+    <img src="webstatic/data-table.png" style="width: 400px;" />
+
+    <p>
+      A few ways to encode it:
+    </p>
+
+
+    <p>
+    <div style="overflow:scroll; width: 90%; height: 300px; border: 1px solid #09f;">
+      // customers-nodes.xml
+      <img src="webstatic/data-xmlnodes.png" style="transform: scale(2); transform-origin: top left;" />
+    </div>
+    </p>
+
+    <p>
+    <div style="overflow:scroll; width: 90%; height: 300px; border: 1px solid #09f;">
+      // customers-props.xml
+      <img src="webstatic/data-xmlprops.png" style="transform: scale(2); transform-origin: top left;" />
+    </div>
+    </p>
+
+
+    <p>
+    <div style="overflow:scroll; width: 90%; height: 300px; border: 1px solid #09f;">
+      // customers-array-objects.json
+      <img src="webstatic/data-json.png" style="transform: scale(2); transform-origin: top left;" />
+    </div>
+    </p>
+
+    <p>
+    <div style="overflow:scroll; width: 90%; height: 300px; border: 1px solid #09f;">
+      // customers-array-array.json
+      <img src="webstatic/data-arr.png" style="transform: scale(2); transform-origin: top left;" />
+    </div>
+    </p>
+
+    <p>
+    <div style="overflow:scroll; width: 90%; height: 300px; border: 1px solid #09f;">
+      // customers-100.csv
+      <img src="webstatic/data-csv.png" style="transform: scale(2); transform-origin: top left;" />
+    </div>
+    </p>
+
+
+    The resulting file-sizes:
+
+    <pre>
+  | File                         | size         | gzip         | msgpack size        |
+  | ---------------------------- | ------------ | ------------ | ------------------- |
+  | customers-nodes.xml          | 43.552 bytes | 10.980 bytes | -                   |
+  | customers-props.xml          | 31.625 bytes | 10.635 bytes | -                   |
+  | customers-array-objects.json | 40,387 bytes | 10.898 bytes | 27.708 bytes (69 %) |
+  | customers-array-array.json   | 19,887 bytes | 9.763 bytes  | 16.908 bytes (85 %) |
+  | customers-100.csv            | 17.261 bytes | 9.434 bytes  | -                   |
+    </pre>
+
+    Looking at the web-developer "default", JSON:
+
+    <div class='shj-lang-js' id="data00">
+      <pre>
+        // consider the following Data
+      const data = [
+        {
+          "Index": 1,
+          "Customer Id": "DD37Cf93aecA6Dc",
+          "First Name": "Sheryl",
+          "Last Name": "Baxter",
+          "Company": "Rasmussen Group",
+          "City": "East Leonard",
+          "Country": "Chile",
+          "Phone 1": "229.077.5154",
+          "Phone 2": "397.884.0519x718",
+          "Email": "zunigavanessa@smith.info",
+          "Subscription Date": "2020-08-24",
+          "Website": "http://www.stephenson.com/"
+        },
+        // ...
+      ]
+      </pre>
+    </div>
+
+    <p>We see a Key - Value balance:<span id="data00-out">xx</span><br />
+      (This speaks to the balance between bytes used to encode the keys, versus the values of our data)<br>
+      <br>
+      so 70% of the <i>payload</i> is keys - and they are repeated for each "customer"...
+    </p>
+
+    <p>
+      What if we stored the <code>keys</code> client-side, and just populated with the data-values?
+    </p>
+
+
+
+    <hr />
+
+    <div class='shj-lang-js' id="data01">
+      <pre>
+        // Or this:
+      const data = [
+				{
+          "id": 5001, 
+         "type": "None"
+        },
+				{
+          "id": 5002, 
+          "type": "Glazed"
+        },
+				{ 
+          "id": 5005,
+          "type": "Sugar"
+        },
+				{
+          "id": 5007,
+          "type": "Powdered Sugar"
+        },
+				{ 
+          "id": 5006, 
+          "type": "Chocolate with Sprinkles"
+        },
+				{
+          "id": 5003,
+          "type": "Chocolate"
+        },
+				{
+          "id": 5004,
+          "type": "Maple"
+        }
+        // ...
+      ]
+      </pre>
+    </div>
+    <div>Key - Value balance:<span id="data01-out">xx</span></div>
+
+
+
+    <div class="see">
+      <a
+        href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures">MDN/JavaScript/Data_structures</a>
+    </div>
+
+    <pre>
+Sample data from: https://github.com/datablist/sample-csv-files
+File: customers-100.csv
+    </pre>
+
+  </section>
+
+  <script type="module">
+    import { highlightAll } from './shj/index.js';
+
+    highlightAll();
+  </script>
+
+  <script>
+
+    function calcBalance(dataSelector, outputSelector) {
+
+      const data = document.querySelector(dataSelector).innerText
+      // console.log(dataSelector, outputSelector, data)
+
+      let charcount_keys = 0
+      let charcount_vals = 0
+
+      const lines = data.split("\n")
+      lines.forEach(line => {
+        if (line.indexOf(":") > 1) {
+          const [key, val, rest] = line.trim().split(":")
+          // console.log(key, val)
+          charcount_keys += key.length
+          charcount_vals += val.length
+        }
+      })
+      const pct = charcount_keys * 100 / charcount_vals
+      // console.log("charcount_keys:", charcount_keys, "charcount_vals:", charcount_vals, "pct:", pct)
+      document.querySelector(outputSelector).innerHTML = ` <span style="color:#0f9;">${pct.toFixed(2)}%</span> (${charcount_keys} / ${charcount_vals})`
+    }
+
+    calcBalance("#data00", "#data00-out")
+    calcBalance("#data01", "#data01-out")
+
+  </script>
+
+  <script>
+
+    const CUSTOMER_KEYS = "Index,Customer Id,First Name,Last Name,Company,City,Country,Phone 1,Phone 2,Email,Subscription Date,Website"
+
+    class Customer {
+      constructor(keys, data) {
+        keys.map((key, i) => {
+          this[key] = data[i]
+        })
+      }
+    }
+
+    function load_data_from_server_with_keys(keys) {
+      // const loaded_data = await io.load("customer", keys)
+      const loaded_data = "1,DD37Cf93aecA6Dc,Sheryl,Baxter,Rasmussen Group,East Leonard,Chile,229.077.5154,397.884.0519x718,zunigavanessa@smith.info,2020-08-24,http://www.stephenson.com/"
+      console.log("load_data_from_server_with_keys()", "loaded:", loaded_data.length, "chars")
+      return loaded_data.split(",")
+    }
+
+    const data = load_data_from_server_with_keys("Customer", CUSTOMER_KEYS)
+    const keys = CUSTOMER_KEYS.replace(/ /g, "_").toLowerCase().split(",")
+    console.log("CUSTOMER_KEYS:", keys)
+    const a = new Customer(keys, data);
+    console.log(a)
+
+    // cmp
+
+    const jsonstr = `{
+          "Index": 1,
+          "Customer Id": "DD37Cf93aecA6Dc",
+          "First Name": "Sheryl",
+          "Last Name": "Baxter",
+          "Company": "Rasmussen Group",
+          "City": "East Leonard",
+          "Country": "Chile",
+          "Phone 1": "229.077.5154",
+          "Phone 2": "397.884.0519x718",
+          "Email": "zunigavanessa@smith.info",
+          "Subscription Date": "2020-08-24",
+          "Website": "http://www.stephenson.com/"
+        }`;
+    console.log("cmp()", "json:", jsonstr.length, "chars")
+  </script>
+
+</body>
+
+</html>

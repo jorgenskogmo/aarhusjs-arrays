@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>welcome</title>
-  </head>
-  <body>
-    <section id="sb">
-      <!--#include file="/chapters.html" -->
-    </section>
-    <section id="main">
-      <div class="dshead">
-        <!--#include file="/ds-aajs-head.html" -->
-        <span style="font-style: italic;">welcome<br />
-      </div>
-<div class="prose"><pre>
+
+<head>
+  <title>welcome</title>
+</head>
+
+<body>
+  <section id="sb">
+    <!--#include file="/chapters.html" -->
+  </section>
+  <section id="main">
+    <div class="dshead">
+      <!--#include file="/ds-aajs-head.html" -->
+      <span style="font-style: italic;">welcome<br />
+    </div>
+    <div class="prose">
+      <pre>
 So, 
 
 Arrays!
@@ -30,13 +33,22 @@ and finally, what arrays of data brings in regards to performance optimisation,
 which makes users happy
 (sorry Søren, the “Great Ux starts with great data” was just an evil pun on your title, hope you’re ok with that ... )
 
-</pre></div>     
-    </section>
 
-    <script>
-      document.querySelectorAll(".prose > pre").forEach( el => {
-        el.parentNode.innerHTML = el.innerText.split("\n").join("<br />\n")
-      })
-    </script>
-  </body>
+My name is Jørgen,
+and I run the design studio DearStudio 
+operating out of aarhus, but internationally rooted by default.
+I have been doing this creative, design, innovation, development work for a while now, and have had the honour to work with a wide range of clients in a wide spectrum of projects.
+Prada, Google, Apple, VW, UN/WHO, BBC, DR, TV2 and most recently: concept development at LEGO (CPL).
+
+</pre>
+    </div>
+  </section>
+
+  <script>
+    document.querySelectorAll(".prose > pre").forEach(el => {
+      el.parentNode.innerHTML = el.innerText.split("\n").join("<br />\n")
+    })
+  </script>
+</body>
+
 </html>

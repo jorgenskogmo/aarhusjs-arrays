@@ -92,9 +92,9 @@
           if (!checkbox) continue
 
           if (i < preset.length) {
-            checkbox.checked = true
+            checkbox.checked = preset[i][1] //true
             const range_element = document.querySelector(`.tools #f${i}`);
-            range_element.value = preset[i]
+            range_element.value = preset[i][0]
             document.querySelector(`.tools #d${i}`).innerHTML = range_element.value
           } else {
             checkbox.checked = false
@@ -128,7 +128,8 @@
 
       let p330 = []
       for (let i = 0; i < 10; i++) {
-        p330.push(330 * (i + 1))
+        const on = i < 3
+        p330.push([330 * (i + 1), on])
       }
 
       uiInit()
@@ -165,6 +166,7 @@
       const DURATION = 1; //secs
       const SAMPLE_RATE = 44100;
       const COLORS = [
+        "#09f",
         "#003f5c",
         "#2f4b7c",
         "#665191",

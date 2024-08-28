@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>msgpack</title>
+
+  <link rel="stylesheet" href="shj/themes/github-dim.css">
+  <script src="/msgpack.js"></script>
+</head>
+
+<body>
+  <section id="sb">
+    <!--#include file="/chapters.html" -->
+  </section>
+  <section id="main">
+    <div class="dshead">
+      <!--#include file="/ds-aajs-head.html" -->
+      <span style="font-style: italic;">welcome<br />
+    </div>
+    <div class="prose">
+      <pre>
+        msgpack
+
+
+      </pre>
+
+
+    </div>
+
+    <div class='shj-lang-js' id="msgpackdemo-out">
+
+      const source = {
+      "Index": 1,
+      "UTF8-test": "Abc with Üñıçôðé and ユニコード",
+      "Customer Id": "DD37Cf93aecA6Dc",
+      "First Name": "Sheryl",
+      "Last Name": "Baxter",
+      "Company": "Rasmussen Group",
+      "City": "East Leonard",
+      "Country": "Chile",
+      "Phone 1": "229.077.5154",
+      "Phone 2": "397.884.0519x718",
+      "Email": "zunigavanessa@smith.info",
+      "Subscription Date": "2020-08-24",
+      "Website": "http://www.stephenson.com/"
+      }
+
+      // serialize
+      const bytes = msgpack.encode(source);
+      console.log("encoded, bytes:", bytes)
+      console.log("encoded, size:", bytes.byteLength)
+
+      // deserialize
+      const deserializedData = msgpack.decode(bytes);
+      console.log(deserializedData)
+
+    </div>
+
+    <pre>
+
+      bytesize of
+      source: 373
+      encoded: 323
+      payload-saving: 14%
+
+      bytesize of source, with 100 "customers": 32585
+      encoded: 27708
+      payload-saving: 15%
+
+    </pre>
+
+  </section>
+
+  <script id="msgpackdemo">
+
+    const byteSize = str => new Blob([str]).size;
+
+    const source = {
+      "Index": 1,
+      "UTF8-test": "Abc with Üñıçôðé and ユニコード",
+      "Customer Id": "DD37Cf93aecA6Dc",
+      "First Name": "Sheryl",
+      "Last Name": "Baxter",
+      "Company": "Rasmussen Group",
+      "City": "East Leonard",
+      "Country": "Chile",
+      "Phone 1": "229.077.5154",
+      "Phone 2": "397.884.0519x718",
+      "Email": "zunigavanessa@smith.info",
+      "Subscription Date": "2020-08-24",
+      "Website": "http://www.stephenson.com/"
+    }
+
+    // with all types
+    // var source = {
+    //   number: 123,
+    //   number2: -0.129,
+    //   text: "Abc with Üñıçôðé and ユニコード",
+    //   flag: true,
+    //   list: [1, 2, 3],
+    //   obj: { a: 1, b: "2", c: false, d: { a: 0, b: -1 } },
+    //   time: Date.now()
+    // };
+
+    console.log("source:", source)
+    console.log("source, byteSize:", byteSize(JSON.stringify(source)))
+
+
+    // serialize to byte array
+    const bytes = msgpack.encode(source);
+    console.log("encoded, bytes:", bytes)
+    console.log("encoded, size:", bytes.byteLength)
+
+    // deserialize
+    const deserializedData = msgpack.decode(bytes);
+    console.log(deserializedData)
+
+    // -------
+    const source2 = JSON.parse(`
+      <!--#include file="/customers-array-objects.json" -->
+    `);
+    console.log("source2", source2)
+    console.log("source2, byteSize:", byteSize(JSON.stringify(source2)))
+
+    const bytes2 = msgpack.encode(source2);
+    console.log("encoded, bytes2:", bytes2)
+    console.log("encoded, size:", bytes2.byteLength)
+  </script>
+
+  <script>
+    document.querySelectorAll(".prose > pre").forEach(el => {
+      el.parentNode.innerHTML = el.innerText.split("\n").join("<br />\n")
+    })
+  </script>
+
+
+  <script type="module">
+    import { highlightAll } from './shj/index.js';
+    highlightAll();
+
+    // document.querySelector("#msgpackdemo-out").innerHTML = document.querySelector("#msgpackdemo").innerText
+
+    // setTimeout(() => {
+    //   highlightAll();
+    // }, 10);
+  </script>
+</body>
+
+</html>
