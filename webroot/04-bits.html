@@ -16,84 +16,61 @@
       <span style="color:chartreuse">methods<br />
     </div>
 
-    a <code>bit</code> of computer science
-
-    So, lets take a look at what makes arrays are so fast.
-    <br />
-    <br />
-    - Or rather,<br />
-    <em>how you can keep your arrays fast.</em>
-
-    <div class='shj-lang-js'>
-      const arr = [];
-      arr[0] = "on a scale from"
-      arr[1] = 1
-      arr[2] = "to"
-      arr[3] = 10
-      arr[4] = ", is this example going to be fast?"
-      // answer: false
-
-      const question = arr.join(" ")
-    </div>
-
-    Is this example valid?<br />
-
-    - Resize for each addition<br />
-    - Mixed data type (strings, numbers, booleans)<br />
-
-
-    <div class='shj-lang-js'>
-      // Avoid resize
-
-
-      const arr = new Array(5);
-
-      // or
-
-      const arr = ["on a scale from", 1, "to", 10, ", is this example going to be fast?", {answer: false}]
-    </div>
-
-    <div class='shj-lang-js'>
-      // Unify data type
-      // array-cs-01.js
-
-      const strings = ["on a scale from", "to", ", is this example going to be fast?"]
-
-      const arr = [ 0, 1, 1, 10, 2 ]
-
-      const question = `${strings[arr[0]]} ${arr[1]} ${strings[arr[2]]} ${arr[3]}${strings[arr[4]]}`; //?
-
-    </div>
-
-    Now, this approach is questionable (although there is three "wins":
-    - $strings is easy to translate
-    - $arr and $strings has a uniform data type
-    - control of formatting of the $question is close (at) to the feature
-    )
-
-    but what I want to focus on here is the `uniform` data advantage.
-
-    You see,
-
-    <hr>
-
-    <h3>low-level arrays</h3>
+    <h2>a <span class="code">bit</span> of computer science</h2>
 
     <p>
-      In low-level languages (e.g. C, C++, Obj-C, and Rust, Swift via their 'unsafe' mechanism),
+      lets take a look at what makes arrays so fast
+      <br />
+      - or rather,<br />
+      <em>how you can keep your arrays fast.</em>
+    </p>
+
+    <p>
+      Performant arrays are arrays<br>
+      - with no "holes" ( <code class="shj-lang-js">[1,2,3] vs [1, undefined, 3]</code>)<br />
+      - with same type ( <code class="shj-lang-js">[1,2,3] vs [1, "2", 3]</code>)<br />
+      - of a size (length) that does not change (too often)<br />
+    </p>
+
+    <h3>Last point first:</h3>
+
+    Initialize your arrays with length
+
+    What happens here:
+    <div class='shj-lang-js'>
+      <pre>
+        // example A
+        const arr_a = []; // initialized without length
+        for( let i=0; i<100; i++){
+            &nbsp;&nbsp; arr_a[i] = i
+        }
+
+        // example B
+        const arr_b = new Array(100); // initialized with length
+        for( let i=0; i<100; i++){
+            &nbsp;&nbsp; arr_b[i] = i
+        }
+    </pre>
+    </div>
+
+
+    <h3>Use same element type</h3>
+
+    <p>
+      In low-level languages (e.g. C, C++, Obj-C, and Rust, Swift via their 'unsafe' mechanisms),<br />
       arrays are declared with a fixed type, fixed size/length and stored in contiguous memory (a unbroken block of
       RAM).
+    </p>
 
     <div class='shj-lang-c'>
+      // C++
       uint8_t myArray[5] = {1, 2, 3, 4, 5}; // An initialized array
     </div>
 
-    The <em>type</em> (<code>int</code> in this example) maps directly to how many bits to reserve for each element,
-    <br />and the total byte-size of the array is simply <code>arr.length * sizeof(arr.type)</code>.</p>
-
     <p>
-      a The common <code>uint8_t</code> (or, <code>UInt8</code> as we know it from JS) is a 8-bit (1byte) value - e.g. a
-      number from 0..255.
+      The type (uint_8) (a data type that can represent any whole number from 0 to 255)
+      by using <span class="code">8 bits</span>.<br />
+      an array of 5 uint_8's, will thereby have a length of <span class="code">5 * 8 = 40 bits</span>
     </p>
 
     A table with a 8-bits data type, storing the same <code class='shj-lang-c'>myArray</code> from above
@@ -125,32 +102,154 @@
     </table>
 
     <p>
-      In C, the variable <code class='shj-lang-c'>myArray</code> is a <code>pointer</code> to the memory address of
-      where this array begins, so
+      In C, the variable <code class='shj-lang-c'>myArray</code> is a <span class="code">pointer</span> to the memory
+      address of where this array begins
+    </p>
 
     <div class='shj-lang-c'>
-      uint8_t a = myArray[0]; // move to the memory address stored in the 'myArray' pointer, read 1byte
-      uint8_t a = *myArray; // equivalent
+      // C++
+      uint8_t myArray[5] = {1, 2, 3, 4, 5}; // An initialized array
+
+      uint8_t a = myArray[0];
+      // means "move to the memory address stored in the 'myArray' pointer, read 1 byte"
+
+      uint8_t a = *myArray;
+      // equivalent, reading 1 byte from where the pointer, eh, points to
+
+      // --
+      // and, as the type (which equals the byte-size of an element) is known,
+
+      uint8_t b = myArray[1];
+      // means "move to the memory address stored in the 'myArray' pointer + 1byte, and read 1 byte"
+
+      uint8_t b = *(myArray + 1); // (equivalent, using pointer arithmetics)
     </div>
 
-    and, as the type (which equals the byte-size of an element) is known,
-    <div class='shj-lang-c'>
-      uint8_t b = myArray[1]; // move to the memory address stored in the 'myArray' pointer + 1byte, read 1byte
-      uint8_t b = *(myArray + 1); // equivalent
+    <p>
+      This gives us<br />
+      - Constant time access<br />
+      - Computable indexing<br />
+    </p>
+
+    <p>
+      In JS, we dont usually need to worry much about this,<br />
+      but that is only because modern Javascript engines (more on that later) helps us.<br />
+    </p>
+
+    <p>
+      But, there is only so much they can do if you design your data badly...<br />
+    <div class="shj-lang-js">
+      <pre>
+        // just because you can, doesn't mean you should...
+        const data = [
+        &nbsp;  1,
+        &nbsp;  2,
+        &nbsp;  0xFA,
+        &nbsp;  {name:"foo", score:3.14, rate:4321}
+        &nbsp;  [1,2, "bar"]
+        &nbsp;]
+      </pre>
+    </div>
+    </p>
+
+
+    <h3>Dense vs Holey</h3>
+
+    <div class=" shj-lang-js">
+      const arr = [1,2,3]
+      arr[9] = 4
+      // [1, 2, 3, empty × 6, 4]
     </div>
 
-    Constant time access, computable indexing, fixed (and tight) memory size.
+    <p>
+      Operations on Holey arrays are generally slower than Dense arrays, <br />
+    </p>
+
+
+    <h3>So?</h3>
+
+    <p>
+      So you might be wondering <span class="code">why should I care</span>!?<br />
+      Well, because if you know this, you can write code that the javascript engine can efficiently optimize.
+    </p>
+
+    <p>
+      V8 implements the above 3 rules in a lattice:
+    </p>
+
+    <img src="webstatic/v8-lattice.png" />
+
+    <p>
+      <em>(simplified, only the most common elements kinds shown)</em>
+    </p>
+
+    <p>
+      Observe the three types:<br />
+      - smi (small integer, v8 uses a 31 bit format to store them)<br>
+      - double (large integers or floats)<br />
+      - elements (where any type of data-types can be stored)<br />
+      with a variant for Dense or Holey for each.<br>
+    </p>
+
+    <p class="code" style="font-size: 150%; line-height: 120%;">
+      <strong>Takeaway:</strong><br>
+      It's only possible to transition downwards through the lattice, <br />
+      and<br />
+      The further down the elements kind is in the lattice,<br />the slower manipulations of that object might be
+    </p>
+
+    <p>
+      ...and once your array does no longer satisfy the constraints of a specialized type (e.g. <span
+        class="code">smi</span>), its "downgraded" to the next level in the lattice.
+    </p>
+
+    <p>
+      ...and once you have transitioned "down", it will NOT transition "up" again, ever.
+    </p>
+
+    <div class=" shj-lang-js">
+
+      // TIPS
+
+      // Avoid Holes, at creation
+      const holey = new Array(5) // bad
+      const dense = [0,0,0,0,0] // good
+      const packed = new Array(5).fill(0) // good
+
+      // Avoid Holes, at runtime
+      const dense = [1, 2, 3, 4, 5]
+      delete dense[3] // bad, [1, 2, 3, empty, 5]
+      dense[3] = undefined // better, [1, 2, 3, undefined, 5]
+      dense.splice(2, 1) // good, [1, 2, 4, 5]
+
+      // Avoid forcing lattice transitions
+      const arr = [1,2,3] // V8 creates a PACKED_SMI_ELEMENTS array
+      arr.push(1.01) // The float value forces V8 to transition "down" to PACKED_DOUBLE_ELEMENTS
+
+      // Avoid resizing
+      const arr = [0,0,0,0]
+      array.push(0) // forces the array to be re-created in ram (and a gc op for the old one)
+
+      // Avoid operations that adds or removes elements at the start of the array
+      array.shift()
+      array.unshift(1)
+      // as this forces the engine to move ALL the other elements to new positions
+    </div>
 
 
     <hr>
 
     <h3>Numbers in JS</h3>
 
+    <p>
+      Still needs convincing about using narrower <span class="code">Numbers</span>?<br>
+    </p>
+
     In JS, all <code>number</code>s are encoded in 64-bits, using a floating point representation (defined in the IEEE
     754-1985 standard).
 
 
-    <div class="shj-lang-js">
+    <div class=" shj-lang-js">
       // ¯\_(ツ)_/¯
       console.log("0.1 + 0.2 = ", 0.1 + 0.2); // 0.30000000000000004
 
@@ -194,6 +293,9 @@
     <div class="see">
       <a
         href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures">MDN/JavaScript/Data_structures</a>
+
+      <a
+        href="https://dev.to/alirezaebrahimkhani/be-careful-about-arrays-v8-engine-advice-1pmk">https://dev.to/alirezaebrahimkhani/be-careful-about-arrays-v8-engine-advice-1pmk</a>
     </div>
 
   </section>
