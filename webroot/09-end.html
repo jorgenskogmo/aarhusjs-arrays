@@ -20,53 +20,68 @@
     <p>
       So,
 
-      We have seen
+    <h1>We have seen</h1>
     </p>
 
-    <div>
 
+    <p>
       How to use them
-      <div class='shj-lang-js'>
-        const a = [1,2,3].concat(4,5,6).reverse(); // [6, 5, 4, 3, 2, 1]
-        const b = [...Array(10).keys()] // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-        const c = a.shift() + b.pop() // 6 + 9 = 15
-      </div>
+    <div class='shj-lang-js'>
+      const a = [1,2,3].concat(4,5,6).reverse(); // [6, 5, 4, 3, 2, 1]
+      const b = [...Array(10).keys()] // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+      const c = a.shift() + b.pop() // 6 + 9 = 15
+    </div>
+    </p>
 
+    <p>
       What makes them fast
-      <div class='shj-lang-js'>
-        const slow = [1, undefined, "two", {"value":3}, true]; // holes, mixed types
-        const fast = [1,2,3,1]; // same type
-        const faster = new Uint8Array(1,2,3,4); // narrow type
-      </div>
+    <div class='shj-lang-js'>
+      const slow = [1, undefined, "two", {"value":3}, true]; // holes, mixed types
+      const fast = [1,2,3,1]; // same type
+      const faster = new Uint8Array(1,2,3,4); // narrow type
+    </div>
+    </p>
 
-      How JavaScript engines perform better with typed data<br />
+    <p>
+      How JavaScript engines perform better with typed data and monomorphism<br />
       (and how TypeScript helps ensure that)
-      <div class='shj-lang-js'>
-        // [ JS ] -> [AST] -> [Sparkplug/Maglev/Turbofan]
-      </div>
+    <div class='shj-lang-js'>
+      // [ JS ] -> [AST] -> [Sparkplug/Maglev/Turbofan]
+    </div>
+    </p>
 
+    <p>
+      How ArrayBuffers and a "data only" approach to i/o can let you
+    <div class='shj-lang-js'>
+      // control periferals with web-bluetooth
+      new Uint8Array([0x08, 0x00, 0x81, 0x00, 0x11, 0x51, 0x00, 0x64]); // LEGO LPF2 Motor command
 
-      How ArrayBuffers and a "data only" approach to i/o is used for
-      <div class='shj-lang-js'>
-        // web-bluetooth
-        new Uint8Array([0x08, 0x00, 0x81, 0x00, 0x11, 0x51, 0x00, 0x64]); // LEGO LPF2 Motor command
+      // squeak with web-audio
+      new Float648Array([1065353216, 1065353224]); // Audio Waveform synth
 
-        // web-audio
-        new Float648Array([1065353216, 1065353224]); // Audio Waveform synth
+      // doodle with canvas
+      new Uint8ClampedArray() /* or */ createImageData(); // Batch update
 
-        // canvas
-        new Uint8ClampedArray() /* or */ createImageData(); // Batch update
+      // send less junk over the wire
+      [1,"DD37Cf93aecA6Dc","Sheryl","Baxter"]
+    </div>
+    </p>
 
-        // payload optimisation
-        [1,"DD37Cf93aecA6Dc","Sheryl","Baxter"]
-      </div>
+    <h2>And with this peek into <span class="code">arrays</span> you hopefully feel inspired to go write some performant
+      code.</h2>
+
+    <p>
+    <div class="takeaway">JavaScript is not fast, browser are (if you help them)</div>
+    </p>
+
+    <h1>thanks!</h1>
+
 
 
     </div>
 
     <div class="see">
-      <a
-        href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures">MDN/JavaScript/Data_structures</a>
+      <a href="https://dearstudio.dk">dearstudio.dk</a>
     </div>
 
 

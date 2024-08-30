@@ -21,8 +21,7 @@
     <p>
       lets take a look at what makes arrays so fast
       <br />
-      - or rather,<br />
-      <em>how you can keep your arrays fast.</em>
+      - or rather, <em>how you can keep your arrays fast.</em>
     </p>
 
     <p>
@@ -143,7 +142,7 @@
         // just because you can, doesn't mean you should...
         const data = [
         &nbsp;  1,
-        &nbsp;  2,
+        &nbsp;  true,
         &nbsp;  0xFA,
         &nbsp;  {name:"foo", score:3.14, rate:4321}
         &nbsp;  [1,2, "bar"]
@@ -163,6 +162,7 @@
 
     <p>
       Operations on Holey arrays are generally slower than Dense arrays, <br />
+      because the engine needs to <strong>check</strong> that there is a value to read rather than just read it.
     </p>
 
 
@@ -180,7 +180,8 @@
     <img src="webstatic/v8-lattice.png" />
 
     <p>
-      <em>(simplified, only the most common elements kinds shown)</em>
+      <em>(simplified, only the most common elements kinds shown. See <a
+          href="https://source.chromium.org/chromium/chromium/src/+/main:v8/src/objects/elements-kind.h;l=105">v8/src/objects/elements-kind.h</a>)</em>
     </p>
 
     <p>
@@ -191,11 +192,10 @@
       with a variant for Dense or Holey for each.<br>
     </p>
 
-    <p class="code" style="font-size: 150%; line-height: 120%;">
+    <p class="takeaway">
       <strong>Takeaway:</strong><br>
       It's only possible to transition downwards through the lattice, <br />
-      and<br />
-      The further down the elements kind is in the lattice,<br />the slower manipulations of that object might be
+      and the further down the lattice,<br />the slower manipulations of that object might be
     </p>
 
     <p>
@@ -223,8 +223,9 @@
       dense.splice(2, 1) // good, [1, 2, 4, 5]
 
       // Avoid forcing lattice transitions
-      const arr = [1,2,3] // V8 creates a PACKED_SMI_ELEMENTS array
-      arr.push(1.01) // The float value forces V8 to transition "down" to PACKED_DOUBLE_ELEMENTS
+      const array = [1, 2, 3]; // elements kind: PACKED_SMI_ELEMENTS
+      array.push(4.56); // elements kind: PACKED_DOUBLE_ELEMENTS
+      array.push('x'); // elements kind: PACKED_ELEMENTS
 
       // Avoid resizing
       const arr = [0,0,0,0]
@@ -236,6 +237,16 @@
       // as this forces the engine to move ALL the other elements to new positions
     </div>
 
+    <div class=" shj-lang-shell">
+      cd /Users/jorgenskogmo/.jsvu/engines/v8-debug
+      ./v8-debug --trace-elements-transitions --allow-natives-syntax
+
+      const arr = [1,2,3]
+      arr[0] = 1.456
+      arr[1] = "alo"
+      arr[10] = 10
+      %DebugPrint(arr)
+    </div>
 
     <hr>
 
@@ -291,11 +302,13 @@
 
 
     <div class="see">
+      Further reading and sources:<br>
+      <a href="https://v8.dev/blog/elements-kinds">https://v8.dev/blog/elements-kinds</a>
       <a
         href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures">MDN/JavaScript/Data_structures</a>
-
       <a
-        href="https://dev.to/alirezaebrahimkhani/be-careful-about-arrays-v8-engine-advice-1pmk">https://dev.to/alirezaebrahimkhani/be-careful-about-arrays-v8-engine-advice-1pmk</a>
+        href="https://mrale.ph/blog/2015/01/11/whats-up-with-monomorphism.html">https://mrale.ph/blog/2015/01/11/whats-up-with-monomorphism.html</a>
+
     </div>
 
   </section>
