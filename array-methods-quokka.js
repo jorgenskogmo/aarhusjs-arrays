@@ -4,11 +4,6 @@ const a1 = [];
 const a = [1, 2];
 // there is more to this - in a few slides
 
-const some_languages = ["css", "html", "fortran"];
-some_languages.push("C++");
-
-some_languages; //?
-
 // add
 a.push(3); //?a
 a.unshift(0); //?a
@@ -19,6 +14,13 @@ a.shift(); //?a
 
 // get
 const b = a[0]; //?a
+
+// Exercise:
+var some_languages = ["css", "html", "fortran"];
+// Can you tell me, which of these array elements
+// is the name of a language rarely (if ever?)
+// known by JavaScript developers?
+var rarely_known = undefined; // <-
 
 // find
 a.indexOf(2); //?

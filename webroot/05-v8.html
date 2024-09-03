@@ -109,16 +109,15 @@ Speed optimizations
    │    └────────────┘                                               
  ──┼────────────────────────────────────────────────────────────────▶
    │                         Compile Time                            
-                                                                     
-                                                                     
-                                                                     
-                                   High Memory use                   
-                                   High Energy use (-> battery life) 
+                                                                                  
+                                      > High Memory use                   
+                                      > High Energy use (-> battery life) 
                                                                      
     </pre>
 
     <p>
-      Now, for certain platforms (iOS), JIT is not allowed. <br />
+      <span class="code">about that *</span><br />
+      Now, for certain platforms (iOS, others?), JIT is not allowed. <br />
       (or, more specifically; prohibit write access to executable memory for non-privileged applications)<br />
       <br />
       Since v7.4 (22 March 2019) V8 supports JavaScript execution without allocating executable memory at runtime,<br />
@@ -126,23 +125,53 @@ Speed optimizations
 
     </p>
 
+
+    <p>
+      Lets compare these with <span class="code">hyperfine</span><br />
+
+    <div class='shj-lang-bash'>
+      # node version
+      node --version
+
+      # mac info
+      system_profiler SPSoftwareDataType SPHardwareDataType
+
+      hyperfine \
+      "node compare.js" \
+      "node --jitless --no-expose_wasm compare.js" \
+      "node --no-opt compare.js" \
+      --warmup=2
+
+      # default optimisations on
+      "node compare.js"
+
+      # disables all runtime allocation of executable memory
+      "node --jitless --no-expose_wasm compare.js"
+
+      # disables turbofan (and others?)
+      "node --no-opt compare.js" --warmup=2
+    </div>
+
     <code class='shj-lang-js'>
-
-      // --no-opt : disables turbofan (and others?)
-      // --jitless --no-expose_wasm : disables all runtime allocation of executable memory
-      
-
-      console.time("run")
-      let iterations = 0, sum = 0
+      let iterations = 0
+      let sum = 0
       for(let i=0; i < 1000; i++){
         for(let j=0; j < 1000*1000; j++){
           sum += j
           iterations ++
         }
       }
-      console.timeEnd("run")
-      console.log("iterations:", iterations)
+      console.log("sum:", sum, "iterations:", iterations)
+      // sum: 499999500000000 iterations: 1.000.000.000 (1B)
     </code>
+
+    <pre>
+      Summary
+      node compare.js ran
+        7.22 ± 0.08 times faster than node --no-opt compare.js
+       12.23 ± 0.16 times faster than node --jitless --no-expose_wasm compare.js
+    </pre>
+    <p>
 
 
 
