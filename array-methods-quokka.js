@@ -1,7 +1,13 @@
 // creation
 const a0 = new Array();
 const a1 = [];
-const a = [1, 2]; //?
+const a = [1, 2];
+// there is more to this - in a few slides
+
+const some_languages = ["css", "html", "fortran"];
+some_languages.push("C++");
+
+some_languages; //?
 
 // add
 a.push(3); //?a
@@ -47,7 +53,7 @@ console.log("-- iterate --");
 // a.map((v) => Math.pow(v,2)) //?
 const _ = a.map((v) => v ** 2); //?
 
-a.forEach((v, index) => console.log(index, v));
+a.forEach((v, index) => console.log("foreach @", index, "=", v));
 
 for (const v of a) {
   console.log(":", v);

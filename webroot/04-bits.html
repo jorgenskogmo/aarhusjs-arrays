@@ -13,7 +13,7 @@
   <section id="main">
     <div class="dshead">
       <!--#include file="/ds-aajs-head.html" -->
-      <span style="color:chartreuse">methods<br />
+      <span style="color:rgb(164, 83, 235)">digging deeper...<br />
     </div>
 
     <h2>a <span class="code">bit</span> of computer science</h2>
@@ -49,6 +49,8 @@
         for( let i=0; i<100; i++){
             &nbsp;&nbsp; arr_b[i] = i
         }
+
+        // note: true for arrays shorter than 64.000 elements
     </pre>
     </div>
 
@@ -67,9 +69,9 @@
     </div>
 
     <p>
-      The type (uint_8) (a data type that can represent any whole number from 0 to 255)
+      The type (uint8) (a data type that can represent any whole number from 0 to 255)
       by using <span class="code">8 bits</span>.<br />
-      an array of 5 uint_8's, will thereby have a length of <span class="code">5 * 8 = 40 bits</span>
+      an array of 5 uint8's, will thereby have a length of <span class="code">5 * 8 = 40 bits</span>
     </p>
 
     A table with a 8-bits data type, storing the same <code class='shj-lang-c'>myArray</code> from above
@@ -152,6 +154,7 @@
     </p>
 
 
+    and lastly (no "holes"):
     <h3>Dense vs Holey</h3>
 
     <div class=" shj-lang-js">
@@ -207,6 +210,23 @@
       ...and once you have transitioned "down", it will NOT transition "up" again, ever.
     </p>
 
+
+    <p>
+      Lets see this using the V8 shell <span class="code">d8</span><br />
+
+    <div class=" shj-lang-sh">
+      cd /Users/jorgenskogmo/.jsvu/engines/v8-debug
+      ./v8-debug --trace-elements-transitions --allow-natives-syntax
+
+      const arr = [1,2,3]; %DebugPrint(arr)
+      arr[0] = 4.56789;
+      arr[1] = "alo";
+      arr[10] = 100
+    </div>
+
+    </p>
+
+
     <div class=" shj-lang-js">
 
       // TIPS
@@ -235,20 +255,31 @@
       array.shift()
       array.unshift(1)
       // as this forces the engine to move ALL the other elements to new positions
+
+
+      var a = new Array();
+      a[0] = 77; // Allocates
+      a[1] = 88;
+      a[2] = 0.5; // Allocates, converts
+      a[3] = true; // Allocates, converts
+
+      // is less efficient than:
+
+      var a = [77, 88, 0.5, true];
+
+
+      // monomorphic vs polymorphic
+      // (call site polymorphism)
+      function add(x, y) {
+      &nbsp;&nbsp; return x + y;
+      }
+
+      add(1, 2); // + in add is monomorphic
+      add("a", "b"); // + in add becomes polymorphic
+
+
     </div>
 
-    <div class=" shj-lang-shell">
-      cd /Users/jorgenskogmo/.jsvu/engines/v8-debug
-      ./v8-debug --trace-elements-transitions --allow-natives-syntax
-
-      const arr = [1,2,3]
-      arr[0] = 1.456
-      arr[1] = "alo"
-      arr[10] = 10
-      %DebugPrint(arr)
-    </div>
-
-    <hr>
 
     <h3>Numbers in JS</h3>
 
@@ -308,6 +339,7 @@
         href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures">MDN/JavaScript/Data_structures</a>
       <a
         href="https://mrale.ph/blog/2015/01/11/whats-up-with-monomorphism.html">https://mrale.ph/blog/2015/01/11/whats-up-with-monomorphism.html</a>
+
 
     </div>
 

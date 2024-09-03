@@ -3,6 +3,14 @@
 
 <head>
   <title>canvas</title>
+
+  <style>
+    input[type=range]:focus-visible {
+      outline-offset: 3px;
+      outline-color: chartreuse;
+      outline-style: dashed;
+    }
+  </style>
 </head>
 
 <body>
@@ -16,17 +24,30 @@
     </div>
 
     Update all pixels of a canvas each frame, using<br />
-    <input type="radio" name="mode" value="pix"> pixel by pixel (using <input id="cellsize" type="range" min="1"
-      max="50" value="5"> cell size of <span id="cellsize_out">NA</span>)<br />
+
+    <input type="radio" name="mode" value="pix"> pixel by pixel (using cell size of <input id="cellsize" type="range"
+      min="1" max="50" value="5"> <span id="cellsize_out">NA</span>px)<br />
     <input type="radio" name="mode" value="buf"> buffer<br />
 
 
+    <div class="tools">
+      <button onclick="step()" id="btn_step">Step</button>
+      <button onclick="startstop()" id="btn_startstop">Start/Stop</button>
+    </div>
 
     <div id="playground" style="margin-top: 1em;">
-      <canvas id="g"></canvas>
+      <canvas id="g" style="background-color: darkorange;"></canvas>
     </div>
     <div id="fps"></div>
     updating <span id="cellcount_out">XX</span> pixels
+
+    <p>
+      A note on "FPS" (Frames pr Second)<br />
+      Given a second (1000 milliseconds), and a (ideal) framerate of 60,<br />
+      our "frame budget" (the time we can spend computing a frame) becomes<br />
+      <span class="code">1000 / 60 = 16.67 ms</span><br />
+
+    </p>
 
     <div class="see">
       Further reading:<br />
@@ -50,13 +71,38 @@
     let imageData;
     let buffer;
 
-    let cellsize = 50;
+    let cellsize = 600;
     const times = [];
     let mode = "pix"
+
+    let stopped = false
+
+
+    const startstop = () => {
+      stopped = !stopped
+      const ssbtn = document.getElementById("btn_startstop")
+      if (stopped) {
+        ssbtn.innerHTML = "Start"
+        document.getElementById("cellcount_out").innerHTML = "0"
+      } else {
+        ssbtn.innerHTML = "Stop"
+      }
+    }
+
+    const step = () => {
+      const color = (Math.random() * 255) << 0;
+      ctx.fillStyle = `rgb(${color},${color},${color},1)`;
+      ctx.fillRect(0, 0, size.w, size.h);
+    }
 
 
 
     const update = () => {
+      if (stopped) {
+        requestAnimationFrame(update);
+        return
+      }
+
       // A
       if (mode === "pix") {
         let count = 0
@@ -152,6 +198,7 @@
     })
 
     setup()
+    startstop()
 
   </script>
 

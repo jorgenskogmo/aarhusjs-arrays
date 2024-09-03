@@ -39,7 +39,13 @@
       </div>
     </div>
 
-    <button onclick="main()">Generate</button>
+    <button onclick="ui2data(true)">Generate</button>
+
+
+    <button onclick="setFqs([403, 486, 400])">Shimmer</button>
+    <button onclick="setFqs([440, 660, 880, 1320])">Fifth</button>
+
+
 
     <div id="playground" style="margin-top: 1em">
       <canvas id="g" width="800" height="400"></canvas>
@@ -103,7 +109,7 @@
       }
 
       // 
-      function ui2data() {
+      function ui2data(hot) {
         let new_frequencies = []
         for (let i = 0; i < 10; i++) {
           const checkbox = document.querySelector(`.tools #o${i}`);
@@ -119,21 +125,33 @@
 
         FREQUENCIES = new_frequencies
 
-        if (!playing) main()
+        if (hot) main()
+        // if (!playing) main()
 
+      }
+
+      function setFqs(fqs) {
+        let new_frequencies = []
+        for (let i = 0; i < 10; i++) {
+          if (i < fqs.length) {
+            new_frequencies[i] = [fqs[i], true]
+          } else {
+            new_frequencies[i] = [PRESET[i][0], false]
+          }
+        }
+        uiLoad(new_frequencies)
       }
 
       //
-      const p = [330, 660, 800, 1300, 3300]
 
-      let p330 = []
+      let PRESET = []
       for (let i = 0; i < 10; i++) {
         const on = i < 3
-        p330.push([330 * (i + 1), on])
+        PRESET.push([330 * (i + 1), on])
       }
 
       uiInit()
-      uiLoad(p330)
+      uiLoad(PRESET)
       ui2data()
 
       function clearPlot() {
